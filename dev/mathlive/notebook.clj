@@ -2,7 +2,7 @@
 ;;
 ;; _alpha - [feedback welcome](https://github.com/mentat-collective/mathlive.cljs)_
 ;;
-;; Dynamic geometry!
+;; Mathlive!
 ;;
 ;; ## Features
 ;;
@@ -18,7 +18,7 @@
 ;;
 ;; ;; namespace
 ;; (ns my-app
-;;   (:require [mathlive.core :as jsx]
+;;   (:require [mathlive-cljs.core :as ml]
 ;;             [reagent.core :as reagent]))
 ;;```
 ;;
@@ -32,6 +32,15 @@
   (:require [mathlive.clerk-ui :refer [cljs]]))
 
 ;; ## Demo
+;;
+;; Let's get some shared state:
 
 (cljs
- {:face "cake"})
+ (defonce state
+   (reagent/atom "hello")))
+
+;; Then a mathfield:
+
+^{:nextjournal.clerk/width :wide}
+(cljs
+ [ml/Mathfield {} state])
