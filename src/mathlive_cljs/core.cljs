@@ -1,64 +1,82 @@
 (ns mathlive-cljs.core
-  (:require ["mathlive" :as ml]))
+  (:require [reagent.core :as r]
+            ["mathlive"]
+            ["react" :as react]))
 
-(def default-style
-  "   .output {
-        padding: 16px;
-      }
-      .output textarea {
-        color: var(--ui-color);
-        background: var(--ui-background);
-      }
-      .output:focus-within {
-        outline: none;
-      }
-      .output math-field, #latex {
-        border-radius: 4px;
-        border: .5px solid;
-        padding: 8px;
-      }
-      .output math-field { font-size: 24px; }
-      .output math-field:focus-within {
-        outline: Highlight auto 1px;
-        outline: -webkit-focus-ring-color auto 1px
-      }
-      #latex {
-        margin-top: 1em;
-        font-family: var(--monospace-font-family), 'IBM Plex Mono', 'Fira Code', 'Source Code Pro',   monospace;
-      }")
+;; TODO:
+;;
+;; - fn or map for opts, test!!
 
-(defn Mathfield [props !state]
-  (let [mfe (ml/MathfieldElement.
-             (clj->js
-              (merge {:fontsDirectory "https://unpkg.com/mathlive@0.83.0/dist/fonts/"}
-                     props)))]
+;; - setvalue if vector? test@!
 
-    ;; Demo shows how to go back and forth... https://cortexjs.io/mathlive/demo/
+;;
+;; - ticket to convert jsxgraph to function components
+;; - functions to get value out as clj
+;; - docs for all of the field things from html, https://cortexjs.io/docs/mathlive/?q=fints-dire, options
 
-    ;; This is a slightly older react component, similar to what we should
-    ;; probably be building here.
-    ;; https://github.com/concludio/react-mathlive/blob/b3ffefb30f8b63448d925c47228b8d0befcaf898/src/MathfieldComponent.tsx
-    (.addEventListener
-     mfe "input"
-     (fn [x]
-       (js/console.log (.getValue (.-target x) "math-json"))
-       (js/console.log (.-isValid ^js (.-expression (.-target x))))
-       (js/console.log (.-errors ^js (.-expression (.-target x))))
-       (let [expr ^js (.-expression (.-target x))]
-         (reset! !state
-                 ;; weird, seems like a bug with isValid.
-                 (if (or (.-isValid expr)
-                         (empty? (.-errors expr)))
-                   {:valid? true
-                    :expr (.-json expr)}
-                   {:valid? false})))))
-    (reset! !state (.getValue mfe "math-json"))
-    ;; TODO note that we do this to prevent a remount...
-    (let [ref (fn [el]
-                (when el
-                  (.replaceWith ^js el mfe)))]
-      (fn []
-        [:<>
-         [:style default-style]
-         [:div {:class "output visible"}
-          [:div {:ref ref}]]]))))
+(defn- update-options! [mf opts-or-f]
+  (let [updated (cond
+                  (fn? opts-or-f)
+                  (-> (.getOptions mf)
+                      (js->clj :keywordize-keys true)
+                      (opts-or-f))
+                  (map? opts-or-f) opts-or-f
+                  :else (throw
+                         (js/Error.
+                          (str "Invalid option for :options."
+                               " must be fn or map."))))]
+    (.setOptions mf (clj->js updated))
+    nil))
+
+;; ## Utilities
+
+(defn ->math-json [mf]
+  (js->clj
+   (.-json ^js (.-expression mf))))
+
+;; ## Component
+
+(defn- mf-forward-ref
+  [props ref]
+  (let [[mf set-mf] (react/useState nil)
+        {:strs [children options onChange] :as props}
+        (js->clj props)]
+
+    (react/useEffect
+     (fn mount []
+       ;; TODO make sure this doesn't trigger much. Why does this thing fire? what is changing??
+       ;;
+       ;; TODO ask Chris if there is a way to prevent re-mount every time the
+       ;; children change...
+       (js/console.log "why am I firing??")
+       (when-let [opts (and mf options)]
+         (update-options! mf opts)))
+     #js [options mf])
+
+    (react/useEffect
+     (fn mount []
+       (when mf
+         (let [v    (.getValue mf)
+               text (if (vector? children)
+                      (reduce str children)
+                      children)]
+           (when (not= v text)
+             (.setValue mf text)
+             ;; TODO ask Chris about this. It doesn't do anything if you are
+             ;; directly typing... so why have it here?
+             (when (and text
+                        (.endsWith text "?")
+                        (not (.endsWith v "?")))
+               (.executeCommand ^js mf "moveToPreviousWord"))))
+         nil)))
+
+    (react/useImperativeHandle ref (fn [] mf))
+    (r/as-element
+     [:math-field
+      (assoc props
+             "ref" set-mf
+             "onInput" onChange)])))
+
+(def Mathfield
+  (r/adapt-react-class
+   (react/forwardRef mf-forward-ref)))
