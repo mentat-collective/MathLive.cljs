@@ -2,7 +2,7 @@
   (:require [hiccup.page :as hiccup]
             [nextjournal.clerk :as clerk]
             [nextjournal.clerk.config :as config]
-            [nextjournal.clerk.viewer]))
+            [nextjournal.clerk.view]))
 
 (defn rebind [^clojure.lang.Var v f]
   (let [old (.getRawRoot v)]

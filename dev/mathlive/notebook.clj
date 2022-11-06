@@ -80,16 +80,21 @@ math-field:focus-within {
                 ;; TODO helper methods for getting out MathJSON, examining
                 ;; expression.
                 (swap! state assoc
-                       :text (.getValue (.-target x))
+                       :text   (.getValue (.-target x))
+                       :simple (.-latex (.simplify (.-expression (.-target x))))
                        :mathjson
-                       (js->clj
-                        (.-json (.-expression (.-target x))))))}
+                       (ml/->math-json (.-target x))))}
   (:text @state)])
 
 ;; And round-tripped as TeX:
 
 (cljs
  (v/tex (:text @state)))
+
+;; using simplification... not very good.
+
+(cljs
+ (v/tex (:simple @state)))
 
 ;; We can see the MathJSON version here:
 
@@ -98,3 +103,33 @@ math-field:focus-within {
   (:mathjson @state)))
 
 ;; Demo shows how to go back and forth... https://cortexjs.io/mathlive/demo/
+
+;; ## Changing the Content
+;;
+;; This is the demo from ["changing the
+;; content"](https://cortexjs.io/mathlive/guides/interacting/#changing-the-content-of-a-mathfield).
+
+(cljs
+ (reagent/with-let
+   [text (reagent/atom
+          "x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}")
+    on-change #(reset! text (.. % -target -value))]
+   [:<>
+    [:h4 "Math Field"]
+    [ml/Mathfield
+     {:on-change on-change}
+     @text]
+    [:h4 "Text Area"]
+    [:textarea
+     {:style {:width "100%" :border "0.5px solid"}
+      :value @text
+      :on-change on-change}]]))
+
+;; TODO go look at how textarea is implemented and give the same exceptions etc!@ https://github.com/facebook/react/blob/main/packages/react-dom-bindings/src/client/ReactDOMTextarea.js
+;;
+;; and the component https://github.com/facebook/react/blob/8e2bde6f2751aa6335f3cef488c05c3ea08e074a/packages/react-dom-bindings/src/client/ReactDOMComponent.js
+
+
+;; ## Fill In the Blank
+;;
+;; This has to feel a bit different.
