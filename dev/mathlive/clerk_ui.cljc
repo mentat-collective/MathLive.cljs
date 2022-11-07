@@ -1,6 +1,6 @@
 (ns mathlive.clerk-ui
   (:require #?(:cljs [mathlive.core])
-            #?(:clj [nextjournal.clerk :as clerk])
+            #?(:clj  [nextjournal.clerk :as clerk])
             #?(:cljs [nextjournal.clerk.sci-viewer :as sv])
             #?(:cljs [sci.core :as sci]))
   #?(:cljs
@@ -15,9 +15,10 @@
    (swap! sv/!sci-ctx
           sci/merge-opts
           {:classes    {'Math js/Math}
-           :aliases    {'jsx 'mathlive.core}
+           :aliases    {'ml 'mathlive.core}
            :namespaces {'mathlive.core
-                        (sci/copy-ns mathlive.core (sci/create-ns 'mathlive.core))}}))
+                        (sci/copy-ns mathlive.core
+                                     (sci/create-ns 'mathlive.core))}}))
 
 ;; ## Example Macro
 
@@ -31,4 +32,5 @@
                           (if (vector? result#)
                             result#
                             [v/inspect result#]))))}
+        {}
         {})))

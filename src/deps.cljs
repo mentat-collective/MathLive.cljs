@@ -1,2 +1,2 @@
 {:npm-deps
- {"mathlive" "^0.83.0"}}
+ {"@mentatcollective/mathlive" "^0.85.0"}}

@@ -1,7 +1,27 @@
 (ns user
-  (:require [nextjournal.clerk :as clerk]
+  (:require [hiccup.page :as hiccup]
+            [nextjournal.clerk :as clerk]
             [nextjournal.clerk.config :as config]
-            [nextjournal.clerk.viewer]))
+            [nextjournal.clerk.view]))
+
+(defn rebind [^clojure.lang.Var v f]
+  (let [old (.getRawRoot v)]
+    (.bindRoot v (f old))))
+
+;; my attempt at injecting the CSS for my viewers...
+(defonce _ignore
+  (rebind
+   #'nextjournal.clerk.view/include-viewer-css
+   (fn [old]
+     (fn []
+       (concat
+        (list
+         (hiccup/include-css
+          "https://unpkg.com/mathlive@0.83.0/dist/mathlive-static.css")
+         (hiccup/include-css
+          "https://unpkg.com/mathlive@0.83.0/dist/mathlive-fonts.css"))
+        (old))))))
+
 
 (defn start! []
   (swap! config/!resource->url merge {"/js/viewer.js" "http://localhost:8765/js/main.js"})
