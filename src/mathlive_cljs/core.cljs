@@ -1,6 +1,6 @@
 (ns mathlive-cljs.core
   (:require [reagent.core :as r]
-            ["mathlive"]
+            ["mathlive" :as mathl]
             ["react" :as react]))
 
 ;; TODO:
@@ -10,10 +10,7 @@
 ;; - ticket to convert jsxgraph to function components
 ;; - functions to get value out as clj
 ;; - docs for all of the field things from html, https://cortexjs.io/docs/mathlive/?q=fints-dire, options
-;; - test the fonts directory thing, can we really set it to nil?
-;;
-;; - add the ability for the value to be MathJSON also.
-
+;; - test the fonts directory thing
 
 (defn- update-options! [mf opts-or-f]
   (let [updated (cond
@@ -31,54 +28,87 @@
 
 ;; ## Utilities
 
+(def mathlive-version
+  (.-mathlive mathl/version))
+
+(def cdn-sounds
+  (str "https://unpkg.com/mathlive@" mathlive-version "/dist/sounds/"))
+
+(def cdn-fonts
+  (str "https://unpkg.com/mathlive@" mathlive-version "/dist/fonts/"))
+
+
 (defn ->math-json [mf]
   (js->clj
    (.-json ^js (.-expression mf))))
 
+(defn set-math-json! [mf expr]
+  (set! ^js (.-expression mf)
+        (clj->js expr)))
+
+(defn math-json->tex [expr]
+  (mathl/serializeMathJsonToLatex
+   (clj->js expr)))
+
 ;; ## Component
 
-(defn- mf-forward-ref
-  [props ref]
-  (let [[mf set-mf] (react/useState nil)
-        {:strs [children options onChange] :as props}
-        (js->clj props)]
-
-    (react/useEffect
-     (fn mount []
-       ;; TODO make sure this doesn't trigger much. Why does this thing fire?
-       ;; what is changing??
-       ;;
-       ;; TODO ask Chris if there is a way to prevent re-mount every time the
-       ;; children change... check if his does it
-       (js/console.log "why am I firing??")
-       (when-let [opts (and mf options)]
-         (update-options! mf opts)))
-     #js [options mf])
-
-    (react/useEffect
-     (fn mount []
-       (when mf
-         (let [v (.getValue mf)
-               text (if (vector? children)
-                      (reduce str "" children)
-                      children)]
-           (when (not= v text)
-             (.setValue mf text))
-           ;; TODO ask Chris about this. It doesn't do anything if you are
-           ;; directly typing... so why have it here? i was getting the error
-           ;; even when typing?
-           (when (.endsWith text "?")
-             (.executeCommand ^js mf "moveToPreviousWord")))
-         nil)))
-
-    (react/useImperativeHandle ref (fn [] mf))
-
-    (r/as-element
-     [:math-field
-      (assoc props
-             "ref" set-mf
-             "onInput" onChange)])))
-
-(def Mathfield
+(def ^{:doc "Docstring."}
+  Mathfield
   (r/adapt-react-class
-   (react/forwardRef mf-forward-ref)))
+   (react/forwardRef
+    (fn [props ref]
+      (let [[mf set-mf] (react/useState nil)
+            {:strs [children value options defaultValue onChange
+                    soundsDirectory fontsDirectory] :as props}
+            (js->clj props)]
+
+        ;; These effects run once on initial load (note the empty dependency array).
+        (react/useEffect
+         (fn mount []
+           (when children
+             (js/console.error "don't set children!"))
+
+           (when (and defaultValue value)
+             (js/console.error "don't both value and defaultValue!")))
+         #js [])
+
+        ;; NOTE this tricky thing, don't use "options" since that changes every
+        ;; time! This effect notes if any properties change; this matters if you
+        ;; allow the user to provide a map.
+        (let [opt-ref (react/useRef options)]
+          (when (not= (.-current opt-ref) options)
+            (set! (.-current opt-ref) options))
+
+          (react/useEffect
+           (fn mount []
+             (when (and mf options)
+               (update-options! mf options)))
+           #js [(.-current opt-ref) mf]))
+
+        (react/useEffect
+         (fn []
+           (when (and mf value (not= (.getValue mf) value))
+             (.setValue mf value)))
+         #js [mf value])
+
+        ;; For whatever reason, when the component is controlled, the component
+        ;; can't move its own cursor position well. So this handles the odd case
+        ;; at the very beginning...
+        (react/useEffect
+         (fn []
+           (when (and mf
+                      (.endsWith (.getValue mf) "?")
+                      (= 2 (.-position mf)))
+             (.executeCommand ^js mf "moveToPreviousWord"))))
+
+        ;; this passes `mf`back out as reference when it changes.
+        (react/useImperativeHandle ref (fn [] mf))
+
+        (r/as-element
+         [:math-field
+          (assoc (dissoc props "onChange" "defaultValue" "value")
+                 "children" (or value defaultValue "")
+                 "ref" set-mf
+                 "onInput" onChange
+                 "sounds-directory" (or soundsDirectory cdn-sounds)
+                 "fonts-directory" (or fontsDirectory cdn-fonts))]))))))
