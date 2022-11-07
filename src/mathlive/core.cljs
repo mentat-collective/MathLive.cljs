@@ -1,18 +1,25 @@
-(ns mathlive-cljs.core
+(ns mathlive.core
+  "Reagent component wrapping the `math-field` web component from
+  the [Mathlive](https://cortexjs.io/docs/mathlive) project, along with
+  associated utilities."
   (:require [reagent.core :as r]
-            ["mathlive" :as mathl]
+            ["@mentatcollective/mathlive" :as mathl]
             ["react" :as react]))
 
-;; TODO:
-;;
-;; - Change to :default-value and :value, log a warning under "error" if children are set.
-;; - test fn or map for opts
-;; - ticket to convert jsxgraph to function components
-;; - functions to get value out as clj
-;; - docs for all of the field things from html, https://cortexjs.io/docs/mathlive/?q=fints-dire, options
-;; - test the fonts directory thing
+;; ## Utilities
 
-(defn- update-options! [mf opts-or-f]
+(defn- update-options!
+  "Given a `MathfieldElement` `mf` and either a
+
+  - map of keyword-or-string => option
+  - function from current options => new options
+
+  Calls [`mf.setOptions`](https://cortexjs.io/docs/mathlive/#(Mathfield%3Ainterface).setOptions)
+  with
+
+  - `opts-or-f` (if a map) or
+  - the result of `(opts-or-f (.getOptions mf))` if a function."
+  [mf opts-or-f]
   (let [updated (cond
                   (fn? opts-or-f)
                   (-> (.getOptions mf)
@@ -26,33 +33,72 @@
     (.setOptions mf (clj->js updated))
     nil))
 
-;; ## Utilities
+(def ^{:doc "Currently loaded version of
+the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
+  mathlive-version
+  "0.84.0"
+  ;; TODO enable this again once we get back to mainline mathlive vs our fork.
+  #_(.-mathlive mathl/version))
 
-(def mathlive-version
-  (.-mathlive mathl/version))
-
-(def cdn-sounds
+(def ^{:doc "Location of the `sounds` directory in the CDN-served package
+            of [mathlive](https://www.npmjs.com/package/mathlive)."}
+  cdn-sounds
   (str "https://unpkg.com/mathlive@" mathlive-version "/dist/sounds/"))
 
-(def cdn-fonts
+(def ^{:doc "Location of the `fonts` directory in the CDN-served package
+            of [mathlive](https://www.npmjs.com/package/mathlive)."}
+  cdn-fonts
   (str "https://unpkg.com/mathlive@" mathlive-version "/dist/fonts/"))
 
-
-(defn ->math-json [mf]
+(defn ->math-json
+  "Given
+  a [`MathfieldElement`](https://cortexjs.io/docs/mathlive/#(MathfieldElement%3Aclass))
+  `mf`, returns a [MathJSON](https://cortexjs.io/math-json/)
+  representation (parsed into Clojure) of the currently displayed expression."
+  [mf]
   (js->clj
    (.-json ^js (.-expression mf))))
 
-(defn set-math-json! [mf expr]
-  (set! ^js (.-expression mf)
-        (clj->js expr)))
-
-(defn math-json->tex [expr]
+(defn math-json->tex
+  "Given a Clojure data structure `expr` representing
+  a [MathJSON](https://cortexjs.io/math-json/) expression, returns a string of
+  LaTeX representing `expr`."
+  [expr]
   (mathl/serializeMathJsonToLatex
    (clj->js expr)))
 
-;; ## Component
+(defn set-math-json!
+  "Given
 
-(def ^{:doc "Docstring."}
+  - a [`MathfieldElement`](https://cortexjs.io/docs/mathlive/#(MathfieldElement%3Aclass)) `mf` and
+  - a Clojure data structure `expr` representing a [MathJSON](https://cortexjs.io/math-json/) expression,
+
+  sets the value of `mf` to the TeX version of `expr`.
+
+  Equivalent to `(.setValue mf (math-json->tex expr))`."
+  [mf expr]
+  (set! ^js (.-expression mf)
+        (clj->js expr)))
+
+;; ## Reagent Component
+;;
+;; This section contains a Reagent component that wraps the `math-field` web
+;; component. You can of course use a `math-field` directly:
+;;
+;; ```
+;; [:math-field {:on-input (fn [x] <do-something>)}
+;;  "1+x"]
+;; ```
+;;
+;; This version makes a few changes that I will document soon!
+;;
+;; TODO document changes.
+
+;; - Change to :default-value and :value, log a warning under "error" if children are set.
+;; - docs for all of the field things from html, https://cortexjs.io/docs/mathlive/?q=fints-dire, options
+
+
+(def ^{:doc "Docstring for the Mathfield."}
   Mathfield
   (r/adapt-react-class
    (react/forwardRef

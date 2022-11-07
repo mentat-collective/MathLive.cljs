@@ -1,5 +1,5 @@
 (ns mathlive.clerk-ui
-  (:require #?(:cljs [mathlive-cljs.core])
+  (:require #?(:cljs [mathlive.core])
             #?(:clj  [nextjournal.clerk :as clerk])
             #?(:cljs [nextjournal.clerk.sci-viewer :as sv])
             #?(:cljs [sci.core :as sci]))
@@ -15,10 +15,10 @@
    (swap! sv/!sci-ctx
           sci/merge-opts
           {:classes    {'Math js/Math}
-           :aliases    {'ml 'mathlive-cljs.core}
-           :namespaces {'mathlive-cljs.core
-                        (sci/copy-ns mathlive-cljs.core
-                                     (sci/create-ns 'mathlive-cljs.core))}}))
+           :aliases    {'ml 'mathlive.core}
+           :namespaces {'mathlive.core
+                        (sci/copy-ns mathlive.core
+                                     (sci/create-ns 'mathlive.core))}}))
 
 ;; ## Example Macro
 
