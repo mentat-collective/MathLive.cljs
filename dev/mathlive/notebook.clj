@@ -1,9 +1,11 @@
-;; # Mathlive.cljs
+;; # MathLive.cljs
 ;;
-;; _Generated from [this notebook](https://github.com/mentat-collective/mathlive.cljs/blob/$GIT_SHA/dev/mathlive/notebook.clj)._
+;; _Generated from [this notebook](https://github.com/mentat-collective/mathlive.cljs/blob/$GIT_SHA/dev/mathlive/notebook.clj)!_
 ;;
 ;; Reagent component wrapping the `math-field` web component from
-;; the [Mathlive](https://github.com/arnog/mathlive) JS library.
+;; the [MathLive](https://github.com/arnog/mathlive) JS library. See the [Github
+;; project](https://github.com/mentat-collective/mathlive.cljs) for more
+;; details.
 ;;
 ;; ## Usage
 ;;
@@ -94,4 +96,94 @@ math-field:focus-within {
       :value @text
       :on-change on-change}]]))
 
-;; More coming soon!
+;; ## Fill In the Blank
+
+(cljs
+ (reagent/with-let
+   [m         (reagent/atom {})
+    on-change #(reset! m (ml/->placeholders
+                          (.-target %)
+                          {:type "math-json"}))]
+   [:<>
+    [ml/Mathfield
+     {:read-only true
+      :value
+      "f(x) := [\\placeholder[x-body]{x},
+                \\placeholder[y-body]{y}]"
+      :on-change on-change}]
+    [v/inspect
+     (v/code @m)]]))
+
+;; ## Docs
+;;
+;; Some nice guides:
+
+;; https://cortexjs.io/mathlive/guides/interacting/
+;;
+;; ## Macros
+;;
+;; https://cortexjs.io/mathlive/guides/macros/
+;;
+;; Woah, no `smallfrac` support:
+
+(cljs
+ [ml/Mathfield
+  {:default-value "\\scriptCapitalE=\\smallfrac{5}{7}+\\frac{5}{7}"}])
+
+;; But now it works:
+
+(cljs
+ [ml/Mathfield
+  {:default-value "\\scriptCapitalE=\\smallfrac{5}{7}+\\frac{5}{7}"
+   :options
+   (fn [opts]
+     (update opts :macros
+             merge
+             {"smallfrac"
+              "{}^{#1}\\!\\!/\\!{}_{#2}"}))}])
+
+;; ## Shortcuts
+
+;; https://cortexjs.io/mathlive/guides/shortcuts/
+;;
+;; Try typing "cake" in the field:
+
+(cljs
+ [ml/Mathfield
+  {:options
+   (fn [opts]
+     (update opts :inlineShortcuts
+             merge
+             {"cake" "\\Gamma"}))}])
+
+;; ## Utilities
+
+;; ### Set MathJSON
+
+(cljs
+ [ml/Mathfield
+  {:ref (fn [mf]
+          (when mf
+            (ml/set-math-json!
+             mf ["Add" "x" ["Subtract" "y" "z"]])))}])
+
+;; ### mathjson->tex
+
+(cljs
+ (v/tex
+  (ml/math-json->tex
+   ["Add" "x" ["Subtract" "y" "z"]])))
+
+
+;; ### How to get MathJSON out:
+
+(cljs
+ (reagent/with-let
+   [mathjson  (reagent/atom [])
+    on-change #(let [mf (.-target %)]
+                 (reset! mathjson (ml/->math-json mf)))]
+   [:<>
+    [ml/Mathfield
+     {:on-change on-change}]
+    [v/inspect
+     (v/code @mathjson)]]))

@@ -2,7 +2,8 @@
   "Reagent component wrapping the `math-field` web component from
   the [Mathlive](https://cortexjs.io/docs/mathlive) project, along with
   associated utilities."
-  (:require [reagent.core :as r]
+  (:require [goog.object :as obj]
+            [reagent.core :as r]
             ["@mentatcollective/mathlive" :as mathl]
             ["react" :as react]))
 
@@ -58,6 +59,24 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
   [mf]
   (js->clj
    (.-json ^js (.-expression mf))))
+
+(defn ->placeholders
+  "Given
+  a [`MathfieldElement`](https://cortexjs.io/docs/mathlive/#(MathfieldElement%3Aclass))
+  `mf`, returns a map of (string) placeholder name => current value of the
+  placeholder."
+  ([mf] (->placeholders {}))
+  ([mf {:keys [type]
+        :or {type "latex"}}]
+   (let [m ^js (.-placeholders mf)]
+     (reduce (fn [acc k]
+               (let [field (obj/get m k)
+                     v (if (= type "math-json")
+                         (->math-json field)
+                         (.getValue field type))]
+                 (assoc acc k v)))
+             {}
+             (js-keys m)))))
 
 (defn math-json->tex
   "Given a Clojure data structure `expr` representing
@@ -152,7 +171,7 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
 
         (r/as-element
          [:math-field
-          (assoc (dissoc props "onChange" "defaultValue" "value")
+          (assoc (dissoc props "onChange" "defaultValue" "value" "options")
                  "children" (or value defaultValue "")
                  "ref" set-mf
                  "onInput" onChange
