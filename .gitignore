@@ -7,6 +7,7 @@ public/js
 
 pom.xml
 pom.xml.asc
+!template/pom.xml
 *.iml
 *.jar
 *.log
@@ -20,4 +21,5 @@ pom.xml.asc
 .hg/
 .clerk/
 .cache/
+output
 public
