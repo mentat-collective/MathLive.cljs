@@ -4,7 +4,7 @@ A light ClojureScript wrapper over [Mathlive][MATHLIVE].
 
 [![Build Status](https://github.com/mentat-collective/mathlive.cljs/actions/workflows/kondo.yml/badge.svg?branch=main)](https://github.com/mentat-collective/mathlive.cljs/actions/workflows/kondo.yml)
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/mentat-collective/mathlive.cljs/blob/main/LICENSE)
-[![cljdoc badge](https://cljdoc.org/badge/mentat-collective/mathlive.cljs)](https://cljdoc.org/d/mentat-collective/mathlive.cljs/CURRENT)
+[![cljdoc badge](https://cljdoc.org/badge/org.mentat/mathlive.cljs)](https://cljdoc.org/d/org.mentat/mathlive.cljs/CURRENT)
 [![Clojars Project](https://img.shields.io/clojars/v/org.mentat/mathlive.cljs.svg)](https://clojars.org/org.mentat/mathlive.cljs)
 
 In progress!

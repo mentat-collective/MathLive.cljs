@@ -16,9 +16,9 @@
           sci/merge-opts
           {:classes    {'Math js/Math}
            :aliases    {'ml 'mathlive.core}
-           :namespaces {'mathlive.core
-                        (sci/copy-ns mathlive.core
-                                     (sci/create-ns 'mathlive.core))}}))
+           :namespaces
+           {'mathlive.core
+            (sci/copy-ns mathlive.core (sci/create-ns 'mathlive.core))}}))
 
 ;; ## Example Macro
 
@@ -32,5 +32,4 @@
                           (if (vector? result#)
                             result#
                             [v/inspect result#]))))}
-        {}
         {})))
