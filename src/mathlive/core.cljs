@@ -4,7 +4,7 @@
   associated utilities."
   (:require [goog.object :as obj]
             [reagent.core :as r]
-            ["@mentatcollective/mathlive" :as mathl]
+            ["mathlive" :as mathl]
             ["react" :as react]))
 
 ;; ## Utilities

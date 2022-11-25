@@ -98,6 +98,8 @@ math-field:focus-within {
 
 ;; ## Fill In the Blank
 
+
+
 (cljs
  (reagent/with-let
    [m         (reagent/atom {})
@@ -108,8 +110,8 @@ math-field:focus-within {
     [ml/Mathfield
      {:read-only true
       :value
-      "f(x) := [\\placeholder[x-body]{x},
-                \\placeholder[y-body]{y}]"
+      "f(x) := [\\placeholder[x-body][x]{},
+                \\placeholder[y-body][y]{}]"
       :on-change on-change}]
     [v/inspect
      (v/code @m)]]))

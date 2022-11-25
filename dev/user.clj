@@ -35,7 +35,7 @@
   ;; TODO this now defaults to a project page. Do we want to change this?
   (swap! config/!resource->url merge {"/js/viewer.js" "/mathlive.cljs/js/main.js"})
   (clerk/build!
-   {:paths ["dev/mathlive/notebook.clj"]
+   {:index "dev/mathlive/notebook.clj"
     :bundle? false
     :browse? false
     :out-path "public"}))
@@ -45,7 +45,7 @@
   ([_]
    (swap! config/!resource->url merge {"/js/viewer.js" "/js/main.js"})
    (clerk/build!
-    {:paths ["dev/mathlive/notebook.clj"]
+    {:index "dev/mathlive/notebook.clj"
      :bundle? false
      :browse? false
      :out-path "public"})))

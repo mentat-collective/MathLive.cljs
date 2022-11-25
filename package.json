@@ -2,7 +2,7 @@
   "name": "mathlive.cljs",
   "version": "0.0.1",
   "dependencies": {
-    "@mentatcollective/mathlive": "^0.85.0"
+    "mathlive": "0.85.1"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",
