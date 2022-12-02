@@ -16,7 +16,9 @@
 ;; > to run and modify this notebook on your machine!
 ;;
 ;; See the [Github project](https://github.com/mentat-collective/mathlive.cljs)
-;; for more details.
+;; for more details, and the [cljdoc
+;; page](https://cljdoc.org/d/org.mentat/mathlive.cljs/CURRENT/doc/readme) for
+;; detailed API documentation.
 ;;
 ;; ## Quickstart
 ;;
@@ -78,7 +80,10 @@ math-field:focus-within {
 
 ;; This will render an "uncontrolled" equation editor. Play around with
 ;; the [keyboard shortcuts](https://cortexjs.io/mathlive/reference/keybindings/)
-;; from the [MathLive site](https://cortexjs.io/mathlive).
+;; from the [MathLive site](https://cortexjs.io/mathlive). A backslash will
+;; trigger command entry; [this
+;; page](https://cortexjs.io/mathlive/reference/commands/) lists all allowed
+;; commands, and the sections below discuss how to extend the set.
 
 ;; ### Uncontrolled Component
 
@@ -133,94 +138,153 @@ math-field:focus-within {
       :value @!tex
       :on-change on-change}]]))
 
-;; ## MathJSON
-;;
-;; TODO get the mathjson out, split out virtual keyboard mode.
-
-;; Let's get some shared state:
-
-(cljs
- (defonce state
-   (reagent/atom {:text "1+x"})))
-
-;; Then a mathfield, and [note this
-;; page](https://cortexjs.io/mathlive/reference/commands/) for tex
-;; and [keybindings](https://cortexjs.io/mathlive/reference/keybindings/).
-
-(cljs
- [ml/Mathfield
-  {:options {:virtualKeyboardMode "manual"}
-   :value   (:text @state)
-   :on-change
-   (fn [event]
-     (let [mf (.-target event)]
-       (swap! state assoc
-              :text     (.getValue mf)
-              :mathjson (ml/->math-json mf))))}])
-
-;; On every change the `Mathfield` mirrors its value into `state`. We can render
-;; the value stored under `:text` as TeX using Clerk:
-
-(cljs
- (v/tex
-  (:text @state)))
-
-;; We can also pull the expression out as MathJSON:
-
-(cljs
- (v/code
-  (:mathjson @state)))
-
 ;; ## Fill In the Blank
+;;
+;; MathLive's "placeholder" functionality allows you to write complicated
+;; mathematical expressions with holes in them that can accept user input.
+;; The [full
+;; guide](https://cortexjs.io/mathlive/guides/interacting/#fill-in-the-blank)
+;; has more detail, but the following exmaple is illustrative.
+;;
+
+;;
+;; The following `Mathfield` declares two placeholders `x-body` and `y-body`
+;; with `\placeholder[<name>][<default-value>]{}` syntax.
+
+;; Interacting with either placeholder fires a `change` event on the
+;; `Mathfield`. We use
+;; the [`ml/->placeholders`](https://cljdoc.org/d/org.mentat/mathlive.cljs/CURRENT/api/mathlive.core#-%3Eplaceholders)
+;; helper to extract all placeholders and convert them to Clojure.
 
 (cljs
  (reagent/with-let
-   [m         (reagent/atom {})
+   [m         (reagent/atom {:x-body []
+                             :y-body []})
     on-change #(reset! m (ml/->placeholders
                           (.-target %)
                           {:type "math-json"}))]
    [:<>
     [ml/Mathfield
      {:read-only true
-      :on-placeholder-change on-change
+      :on-change on-change
       :value
       "f(x) := [\\placeholder[x-body][x]{},
                 \\placeholder[y-body][y]{}]"}]
-    [v/inspect
-     (v/code @m)]]))
+    [:pre (str @m)]]))
 
-;; ## Docs
-;;
-;; Some nice guides:
+;; Note the `{:type "math-json"}` option we supplied to `->placeholders`.
+;; Supplying `{:type "latex"}` would pull latex values from the placeholders.
+;; See the [MathJSON](#MathJSON) section below for more detail.
 
-;; https://cortexjs.io/mathlive/guides/interacting/
+;; > Note that you must supply `:read-only true` for this feature to work
+;; > correctly.
+
+;; ## More Guides
 ;;
-;; ## Macros
+;; The MathLive site has [many guides](https://cortexjs.io/mathlive/guides) that
+;; you should read and explore. This section contains a sample of a few MathLive
+;; features documented in those guides.
+
+;; ### Options
 ;;
-;; https://cortexjs.io/mathlive/guides/macros/
+;; There are 3 ways to configure a `Mathfield`:
 ;;
-;; Woah, no `smallfrac` support:
+;; - Set attributes on the `Mathfield` by
+;;   providing [attributes](https://cortexjs.io/docs/mathlive/#(MathfieldElementAttributes%3Ainterface))
+;;   as key-value pairs to the component
+;; - Use the `:options` key to provide a map of key-value pairs to be passed to
+;;   `mf.setOptions()` (see [the
+;;   docs](https://cortexjs.io/docs/mathlive/#(MathfieldOptions%3Atype)) for
+;;   allowed pairs)
+;; - Pass a function of `<current options> => <new options>` via the `:options` key.
+;;
+;; Each [allowed
+;; attribute](https://cortexjs.io/docs/mathlive/#(MathfieldElementAttributes%3Ainterface))
+;; has a corresponding [allowed
+;; option](https://cortexjs.io/docs/mathlive/#(MathfieldOptions%3Atype)) with a
+;; slightly different name.
+;;
+;; > NOTE that if you want to provide a property with a DASH in it, you'll need
+;; > to pass it as a string, not a keyword. Reagent will automatically camelCase
+;; > any keywords with dashes, but string keys preserve dashes.
+;;
+;; For example, all three of the following `Mathfield`s are configured with
+;; their `virtualKeyboardMode` set to true:
+
+(cljs
+ [:<>
+  ;; Via options map:
+  [ml/Mathfield
+   {:options {:virtualKeyboardMode "manual"}}]
+
+  ;; Via function:
+  [ml/Mathfield
+   {:options
+    (fn [m]
+      (assoc m :virtualKeyboardMode "manual"))}]
+
+  ;; Via property:
+  [ml/Mathfield
+   ;; Note that this key has to be a string to preserve the spaces.
+   {"virtual-keyboard-mode" "manual"}]])
+
+;; ### Mathfield via :ref
+;;
+;; To do something more advanced than this API supports, you can always get
+;; access to the
+;; underlying [`MathfieldElement`](https://cortexjs.io/docs/mathlive/#(MathfieldElement%3Aclass))
+;; by using the `:ref` key on the `Mathfield` component. The function you supply
+;; will receive `MathfieldElement` before any modifications from your supplied
+;; options.
 
 (cljs
  [ml/Mathfield
-  {:default-value "\\scriptCapitalE=\\smallfrac{5}{7}+\\frac{5}{7}"}])
+  {:ref (fn [mf]
+          (when mf
+            (.setValue mf "1+x")))}])
 
-;; But now it works:
+;; ### Macros
+
+;; You can extend the set of LaTeX commands supported by your `Mathfield` by
+;; registering [custom macros](https://cortexjs.io/mathlive/guides/macros/).
+
+;; This `Mathfield` shows a red error box over the `\smallfrac` command:
 
 (cljs
  [ml/Mathfield
-  {:default-value "\\scriptCapitalE=\\smallfrac{5}{7}+\\frac{5}{7}"
+  {:default-value
+   "\\scriptCapitalE=\\smallfrac{5}{7}+\\frac{5}{7}"}])
+
+;; Below we provide a function to `:options` that `assoc`s the new `<macro
+;; command>` / `<replacement template>` into the map stored under `:macros`, and
+;; now the `\smallfrac` renders properly!
+
+(cljs
+ [ml/Mathfield
+  {:default-value
+   "\\scriptCapitalE=\\smallfrac{5}{7}+\\frac{5}{7}"
    :options
    (fn [opts]
-     (update opts :macros assoc
+     (update opts :macros
+             assoc
              "smallfrac"
              "{}^{#1}\\!\\!/\\!{}_{#2}"))}])
 
-;; ## Shortcuts
+;; `\smallfrac` will also autocomplete. Try typing `\smallfr` and you should see
+;; the autocomplete suggestion appear.
 
-;; https://cortexjs.io/mathlive/guides/shortcuts/
+;; > Note that we used a function here to update options. Supplying `{:macros
+;; > {"smallfrac" <value>}}` would have worked, but would have removed all other
+;; > default registered macros.
+
+;; ### Shortcuts
+
+;; A MathLive shortcut (see the [official
+;; guide](https://cortexjs.io/mathlive/guides/shortcuts/#inline-shortcuts)) is a
+;; string that the `Mathfield` recognizes and automatically replaces with some
+;; other string.
 ;;
-;; Try typing "cake" in the field:
+;; Try typing `cake` into the `Mathfield` below:
 
 (cljs
  [ml/Mathfield
@@ -230,9 +294,67 @@ math-field:focus-within {
              assoc
              "cake" "\\Gamma"))}])
 
-;; ## Utilities
+;; ## MathJSON
+;;
+;; The default value format for a `Mathfield` is `"latex"`, but the component
+;; supports many other output formats, such as `"ascii-math"` or
+;; `"spoken-text"`. See the docs for the [full list of output
+;; formats](https://cortexjs.io/docs/mathlive/#(OutputFormat%3Atype)).
+;;
+;; The MathLive team has created a more easily parseable output format
+;; called [MathJSON](https://cortexjs.io/math-json/), and this library provides
+;; tooling to extract MathJSON from a `Mathfield` parsed into Clojure data
+;; structures.
+;;
+;; This example pulls both LaTeX and MathJSON from a `Mathfield`.
+;;
+;; First, create a `reagent/atom` to store the values:
 
-;; ### Set MathJSON
+(cljs
+ (defonce !state
+   (reagent/atom {:text "1+x"})))
+
+;; The controlled `Mathfield` instance below will update `!state` with LaTeX
+;; under the `:text` key and MathJSON under the `:mathjson` key on every
+;; keypress.
+
+;; > You can call `(.getValue mf <output-format>)` with any of the output
+;; > formats [listed
+;; > here](https://cortexjs.io/docs/mathlive/#(OutputFormat%3Atype)). `(ml/->math-json
+;; > mf)` returns the MathJSON as Clojure data vs JS.
+
+(cljs
+ [ml/Mathfield
+  {:value (:text @!state)
+   :on-change
+   (fn [event]
+     (let [mf (.-target event)]
+       (swap! !state assoc
+              :text     (.getValue mf)
+              :mathjson (ml/->math-json mf))))}])
+
+;; The following block renders any value entered above (please edit it!) in 3 different forms:
+;;
+;; - A text representation of LaTeX
+;; - Rendered TeX, via [Clerk's](https://github.com/nextjournal/clerk) [KaTeX](https://katex.org/) plugin
+;; - MathJSON parsed into Clojure
+
+(cljs
+ [:<>
+  [:pre (:text @!state)]
+  [v/inspect (v/tex
+              (:text @!state))]
+  [v/inspect (v/code
+              (:mathjson @!state))]])
+
+;; These values will live-update as you change the value of the `Mathfield`
+;; above.
+
+;; ### Setting MathJSON
+;;
+;; If you have a Clojure representation of a MathJSON expression, you can set
+;; the value of a `Mathfield` directly using
+;; the [`:ref`](#Mathfield%20via%20:ref) key:
 
 (cljs
  [ml/Mathfield
@@ -241,30 +363,18 @@ math-field:focus-within {
             (ml/set-math-json!
              mf ["Add" "x" ["Subtract" "y" "z"]])))}])
 
+;; `ml/set-math-json!` will parse the argument into JS and then set the
+;; `.-expression` field on `mf`.
+
 ;; ### mathjson->tex
+
+;; You can also generate LaTeX directly from MathJSON without setting a
+;; `Mathfield`'s value:
 
 (cljs
  (v/tex
   (ml/math-json->tex
    ["Add" "x" ["Subtract" "y" "z"]])))
-
-
-;; ### How to get MathJSON out:
-
-(cljs
- (reagent/with-let
-   [mathjson  (reagent/atom [])
-    on-change #(let [mf (.-target %)]
-                 (reset! mathjson (ml/->math-json mf)))]
-   [:<>
-    [ml/Mathfield
-     {:on-change on-change}]
-    [v/inspect
-     (v/code @mathjson)]]))
-
-;; ## MathLive Guides
-;;
-;; This just scratches the surface! TODO add more detail here.
 
 ;; ## Thanks and Support
 

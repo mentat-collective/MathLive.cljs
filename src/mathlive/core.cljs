@@ -5,7 +5,7 @@
   (:require [goog.object :as obj]
             [reagent.core :as r]
             ["@cortex-js/compute-engine" :refer [ComputeEngine]]
-            ["@mentatcollective/mathlive/dist/mathlive.js" :as ml]
+            ["@mentatcollective/mathlive/dist/mathlive.js" #_#_ :as ml]
             ["react" :as react]))
 
 ;; ## Utilities
@@ -42,7 +42,7 @@
 (def ^{:doc "Currently loaded version of
 the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
   mathlive-version
-  "0.84.0"
+  "0.85.1"
   ;; TODO enable this again once we get back to mainline mathlive vs our fork.
   #_(.-mathlive ml/version))
 
@@ -81,11 +81,11 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
                      v (if (= type "math-json")
                          (->math-json field)
                          (.getValue field type))]
-                 (assoc acc k v)))
+                 (assoc acc (keyword k) v)))
              {}
              (js-keys m)))))
 
-(def engine
+(def ^:no-doc engine
   (ComputeEngine.))
 
 (defn math-json->tex
@@ -201,9 +201,3 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
                  "onInput" onChange
                  "sounds-directory" (or soundsDirectory cdn-sounds)
                  "fonts-directory" (or fontsDirectory cdn-fonts))]))))))
-
-
-(r/with-let [!tex (r/atom "")]
-  [:div
-   [ml/MathField {:value @!tex}]
-   [:pre @!tex]])
