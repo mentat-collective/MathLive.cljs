@@ -1,5 +1,6 @@
 (ns mathlive.clerk-ui
-  (:require #?(:cljs [mathlive.core])
+  (:require #?(:cljs ["@cortex-js/compute-engine"])
+            #?(:cljs [mathlive.core])
             #?(:clj  [nextjournal.clerk :as clerk])
             #?(:cljs [nextjournal.clerk.sci-viewer :as sv])
             #?(:cljs [sci.core :as sci]))

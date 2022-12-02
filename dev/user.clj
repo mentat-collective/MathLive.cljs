@@ -32,8 +32,8 @@
   (clerk/show! "dev/mathlive/notebook.clj"))
 
 (defn github-pages! [_]
-  ;; TODO this now defaults to a project page. Do we want to change this?
-  (swap! config/!resource->url merge {"/js/viewer.js" "/mathlive.cljs/js/main.js"})
+  (swap! config/!resource->url merge
+         {"/js/viewer.js" "/mathlive.cljs/js/main.js"})
   (clerk/build!
    {:index "dev/mathlive/notebook.clj"
     :bundle? false

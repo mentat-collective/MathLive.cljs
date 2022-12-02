@@ -4,8 +4,7 @@
   associated utilities."
   (:require [goog.object :as obj]
             [reagent.core :as r]
-            ["@cortex-js/compute-engine" :refer [ComputeEngine]]
-            ["@mentatcollective/mathlive/dist/mathlive.js" #_#_ :as ml]
+            ["mathlive" :as ml]
             ["react" :as react]))
 
 ;; ## Utilities
@@ -14,7 +13,7 @@
   "Given a `MathfieldElement` `mf` and either a
 
   - map of keyword-or-string => option
-  - function from current options => new options
+  - function from Clojurized current options => new options
 
   Calls [`mf.setOptions`](https://cortexjs.io/docs/mathlive/#(Mathfield%3Ainterface).setOptions)
   with
@@ -26,10 +25,6 @@
                   (fn? opts-or-f)
                   (-> (.getOptions mf)
                       (js->clj :keywordize-keys true)
-                      ;; TODO once this is resolved:
-                      ;; https://github.com/arnog/mathlive/issues/1738, we can
-                      ;; erase this.
-                      (dissoc :computeEngine)
                       (opts-or-f))
                   (map? opts-or-f) opts-or-f
                   :else (throw
@@ -40,38 +35,41 @@
     nil))
 
 (def ^{:doc "Currently loaded version of
-the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
+the [mathlive](https://www.npmjs.com/package/mathlive) npm package."}
   mathlive-version
-  "0.85.1"
-  ;; TODO enable this again once we get back to mainline mathlive vs our fork.
-  #_(.-mathlive ml/version))
-
-
+  (.-mathlive ml/version))
 
 (def ^{:doc "Location of the `sounds` directory in the CDN-served package
-            of [mathlive](https://www.npmjs.com/package/mathlive)."}
-  cdn-sounds
+  of [mathlive](https://www.npmjs.com/package/mathlive)."} cdn-sounds
   (str "https://unpkg.com/mathlive@" mathlive-version "/dist/sounds/"))
 
 (def ^{:doc "Location of the `fonts` directory in the CDN-served package
-            of [mathlive](https://www.npmjs.com/package/mathlive)."}
-  cdn-fonts
+  of [mathlive](https://www.npmjs.com/package/mathlive)."} cdn-fonts
   (str "https://unpkg.com/mathlive@" mathlive-version "/dist/fonts/"))
 
 (defn ->math-json
   "Given
   a [`MathfieldElement`](https://cortexjs.io/docs/mathlive/#(MathfieldElement%3Aclass))
   `mf`, returns a [MathJSON](https://cortexjs.io/math-json/)
-  representation (parsed into Clojure) of the currently displayed expression."
+  representation (parsed into Clojure) of the currently displayed expression.
+
+  NOTE that for this or anything MathJSON related to work you'll need
+  to `(require '[@cortex-js/compute-engine])`. If this package isn't loaded,
+  returns `nil`."
   [mf]
-  (js->clj
-   (.-json ^js (.-expression mf))))
+  (when-let [e (.-expression ^js mf)]
+    (js->clj
+     (.-json e))))
 
 (defn ->placeholders
   "Given
   a [`MathfieldElement`](https://cortexjs.io/docs/mathlive/#(MathfieldElement%3Aclass))
   `mf`, returns a map of (string) placeholder name => current value of the
-  placeholder."
+  placeholder.
+
+  NOTE that for `{:type \"math-json\"}` to work you'll need to `(require
+  '[@cortex-js/compute-engine])`. If this option is specified and the package
+  isn't loaded, returns `nil` for each placeholder value."
   ([mf] (->placeholders mf {}))
   ([mf {:keys [type]
         :or {type "latex"}}]
@@ -85,16 +83,17 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
              {}
              (js-keys m)))))
 
-(def ^:no-doc engine
-  (ComputeEngine.))
-
 (defn math-json->tex
   "Given a Clojure data structure `expr` representing
   a [MathJSON](https://cortexjs.io/math-json/) expression, returns a string of
-  LaTeX representing `expr`."
+  LaTeX representing `expr`.
+
+  NOTE that for this or anything MathJSON related to work you'll need
+  to `(require '[@cortex-js/compute-engine])`. If this package isn't loaded,
+  returns `nil`."
   [expr]
-  (.-latex
-   (.box engine (clj->js expr))))
+  (ml/serializeMathJsonToLatex
+   (clj->js expr)))
 
 (defn set-math-json!
   "Given
@@ -104,10 +103,15 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
 
   sets the value of `mf` to the TeX version of `expr`.
 
-  Equivalent to `(.setValue mf (math-json->tex expr))`."
+  Equivalent to `(.setValue mf (math-json->tex expr))`.
+
+  NOTE that for this or anything MathJSON related to work you'll need
+  to `(require '[@cortex-js/compute-engine])`. If this package isn't loaded,
+  this command has no effect."
   [mf expr]
-  (set! ^js (.-expression mf)
-        (clj->js expr)))
+  (when (.-expression ^js mf)
+    (set! (.-expression ^js mf)
+          (clj->js expr))))
 
 ;; ## Reagent Component
 ;;
@@ -118,55 +122,65 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
 ;; [:math-field {:on-input (fn [x] <do-something>)}
 ;;  "1+x"]
 ;; ```
-;;
-;; This version makes a few changes that I will document soon!
-;;
-;; TODO document changes.
 
-;; - Change to :default-value and :value, log a warning under "error" if children are set.
-;; - docs for all of the field things from html, https://cortexjs.io/docs/mathlive/?q=fints-dire, options
+(def ^{:doc "Reagent component around
+  the [MathLive](https://github.com/arnog/mathlive) equation editor.
 
-
-(def ^{:doc "Docstring for the Mathfield."}
+  NOTE: Following React's convention, `:on-change` binds a listener to to the
+ `input` event. See https://reactjs.org/docs/dom-elements.html#onchange"}
   Mathfield
   (r/adapt-react-class
    (react/forwardRef
     (fn [props ref]
       (let [[mf set-mf] (react/useState nil)
             {:strs [children value options defaultValue onChange
-                    onPlaceholderChange
-                    soundsDirectory fontsDirectory] :as props}
+                    onPlaceholderChange] :as props}
             (js->clj props)]
 
-        ;; These effects run once on initial load (note the empty dependency array).
+        ;; These effects run once on initial load (note the empty dependency
+        ;; array). They provide warnings similar to the warnings you see from a
+        ;; `:textarea`.
         (react/useEffect
          (fn mount []
            (when children
-             (js/console.error "don't set children!"))
+             (js/console.error
+              (str "Warning: use the `:default-value` or `:value` "
+                   "props instead of setting children on `Mathfield`.")))
 
            (when (and defaultValue value)
-             (js/console.error "don't both value and defaultValue!")))
+             (js/console.error
+              (str "Warning: don't set both `:value` and `:default-value` props."
+                   " `Mathfield`s must be either controlled or uncontrolled"
+                   " (specify either the `:value` prop, or the `:default-value` prop, but not both)."
+                   " Decide between using a controlled or uncontrolled `Mathfield` and remove one of these props."))))
          #js [])
 
-        ;; NOTE this tricky thing, don't use "options" since that changes every
-        ;; time! This effect notes if any properties change; this matters if you
-        ;; allow the user to provide a map.
+        ;; NOTE We have to use this trick to prevent effects that depend on
+        ;; `options` from re-running on every re-render. This is because JS
+        ;; objects use reference equality, not value equality. This trick lets
+        ;; us only reset when the previous and next are `not=`, which uses
+        ;; Clojure's value equality comparison.
         (let [opt-ref (react/useRef options)]
           (when (not= (.-current opt-ref) options)
             (set! (.-current opt-ref) options))
 
           (react/useEffect
+           ;; Only run when the VALUE of `options` changes, not the reference.
            (fn mount []
              (when (and mf options)
                (update-options! mf options)))
            #js [(.-current opt-ref) mf]))
 
+        ;; This effect updates the value of the `Mathfield` if it's changed from
+        ;; somewhere else.
         (react/useEffect
          (fn []
            (when (and mf value (not= (.getValue mf) value))
              (.setValue mf value)))
          #js [mf value])
 
+        ;; React doesn't pick up `:on-placeholder-change` so we intercept it and
+        ;; do the right thing here.
         (react/useEffect
          (fn mount []
            (when (and mf onPlaceholderChange)
@@ -176,9 +190,11 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
                (.removeEventListener mf "placeholder-change" onPlaceholderChange))))
          #js [mf onPlaceholderChange])
 
-        ;; For whatever reason, when the component is controlled, the component
-        ;; can't move its own cursor position well. So this handles the odd case
-        ;; at the very beginning...
+        ;; NOTE: For whatever reason, when the component is controlled, the
+        ;; component can't move its own cursor position well. So this handles
+        ;; the odd case at the very beginning... Thanks to [Chris
+        ;; Chudzicki](https://github.com/ChristopherChudzicki/math3d-next/blob/838369956a0bd1f126f8c04ef900eaf53741011c/client/src/util/components/MathLive/MathField.tsx#L52-L69)
+        ;; for figuring this one out.
         (react/useEffect
          (fn []
            (when (and mf
@@ -186,7 +202,7 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
                       (= 2 (.-position mf)))
              (.executeCommand ^js mf "moveToPreviousWord"))))
 
-        ;; this passes `mf`back out as reference when it changes.
+        ;; This passes `mf`back out to `ref` when it changes.
         (react/useImperativeHandle ref (fn [] mf))
 
         (r/as-element
@@ -194,10 +210,5 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
           (assoc (dissoc props "onPlaceholderChange" "onChange"
                          "defaultValue" "value" "options")
                  "children" (or value defaultValue "")
-                 "ref" (fn [field]
-                         (when field
-                           (.setOptions field #js {:computeEngine (ComputeEngine.)}))
-                         (set-mf field))
-                 "onInput" onChange
-                 "sounds-directory" (or soundsDirectory cdn-sounds)
-                 "fonts-directory" (or fontsDirectory cdn-fonts))]))))))
+                 "ref" set-mf
+                 "onInput" onChange)]))))))
