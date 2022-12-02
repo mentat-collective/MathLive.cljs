@@ -1,9 +1,9 @@
 {
   "name": "mathlive.cljs",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "dependencies": {
-    "@cortex-js/compute-engine": "^0.12.1",
-    "@mentatcollective/mathlive": "0.85.2"
+    "@cortex-js/compute-engine": "^0.12.2",
+    "mathlive": "^0.86.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",

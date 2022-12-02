@@ -134,7 +134,12 @@ math-field:focus-within {
       :on-change on-change}]
     [:h4 "Text Area"]
     [:textarea
-     {:style {:width "100%" :border "0.5px solid"}
+     {:style
+      {:width "100%"
+       :border "1px solid"
+       :border-radius "4px"
+       :font-size "20px"
+       :padding "8px"}
       :value @!tex
       :on-change on-change}]]))
 
@@ -294,6 +299,50 @@ math-field:focus-within {
              assoc
              "cake" "\\Gamma"))}])
 
+;; ### Styling
+;;
+;; From MathLive's [guide on customization](https://cortexjs.io/mathlive/guides/customizing/):
+;;
+;; > The appearance and behavior of the mathfield is highly customizable.
+;;
+;; The `Mathfield` instances in this notebook have all been customized with the following styles:
+;;
+;;```css
+;; math-field {
+;;   font-size: 24px;
+;;   border-radius: 4px;
+;;   border: 1px solid;
+;;   padding: 8px;
+;; }
+;; math-field:focus-within {
+;;   outline: none;
+;;   border: 1px solid blue;
+;; }
+;;```
+;;
+;; ### Fonts and Sounds
+;;
+;; By default, `Mathfield` instances attempt to load fonts and sounds from
+;; `/dist/fonts` and `/dist-sounds`, respectively, of the route serving the
+;; `Mathfield`.
+;;
+;; You can customize fonts with a `"fonts-directory"` attribute or
+;; `fontsDirectory` option. See the [fonts
+;; guide](https://cortexjs.io/mathlive/guides/customizing/#fonts) for more
+;; details.
+;;
+;; To customize the sounds location, use the `"sounds-directory"` attribute or
+;; `soundsDirectory` option.
+;;
+;; For more details on both of these options, see
+;; the [`CoreOptions`](https://cortexjs.io/docs/mathlive/#(CoreOptions%3Atype))
+;; documentation.
+;;
+;; If you want to set these without serving them yourself, `mathlive.cljs`
+;; provides and `mathlive.core/cdn-fonts` and `mathlive.core/cdn-sounds` vars
+;; that point to the CDN distribution of the currently loaded version of
+;; `mathlive`.
+
 ;; ## MathJSON
 ;;
 ;; The default value format for a `Mathfield` is `"latex"`, but the component
@@ -306,7 +355,21 @@ math-field:focus-within {
 ;; tooling to extract MathJSON from a `Mathfield` parsed into Clojure data
 ;; structures.
 ;;
-;; This example pulls both LaTeX and MathJSON from a `Mathfield`.
+;; To use any of the MathJSON features you'll need to require the
+;; `@cortex-js/compute-engine` dependency somewhere in your codebase:
+;;
+;; ```clj
+;; (ns my-app
+;;   (:require [mathlive.core :as ml]
+;;             [reagent.core :as reagent]
+;;             ;; included for side effects
+;;             ["@cortex-js/compute-engine"]))
+;; ```
+;;
+;; ### Extracting MathJSON
+;;
+;; The following example example pulls both LaTeX and MathJSON from a
+;; `Mathfield`.
 ;;
 ;; First, create a `reagent/atom` to store the values:
 
