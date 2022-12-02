@@ -62,12 +62,12 @@
 math-field {
   font-size: 24px;
   border-radius: 4px;
-  border: .5px solid;
+  border: 1px solid;
   padding: 8px;
 }
 math-field:focus-within {
-  outline: Highlight auto 1px;
-  outline: -webkit-focus-ring-color auto 1px
+  outline: none;
+  border: 1px solid blue;
 }"])
 
 ;; ## Basic Mathfield

@@ -17,9 +17,9 @@
        (concat
         (list
          (hiccup/include-css
-          "https://unpkg.com/mathlive@0.83.0/dist/mathlive-static.css")
+          "https://unpkg.com/mathlive@0.85.1/dist/mathlive-static.css")
          (hiccup/include-css
-          "https://unpkg.com/mathlive@0.83.0/dist/mathlive-fonts.css"))
+          "https://unpkg.com/mathlive@0.85.1/dist/mathlive-fonts.css"))
         (old))))))
 
 
