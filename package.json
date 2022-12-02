@@ -2,7 +2,8 @@
   "name": "mathlive.cljs",
   "version": "0.0.1",
   "dependencies": {
-    "@mentatcollective/mathlive": "^0.85.0"
+    "@cortex-js/compute-engine": "^0.12.1",
+    "@mentatcollective/mathlive": "0.85.2"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",
@@ -39,7 +40,8 @@
   },
   "homepage": "https://mentat-collective.github.io/mathlive.cljs",
   "scripts": {
-    "serve": "http-server -c-1",
+    "serve": "http-server -c-1 -o",
+    "gh-pages": "gh-pages -d public",
     "watch-clerk": "shadow-cljs watch clerk",
     "release-clerk": "shadow-cljs release clerk"
   }

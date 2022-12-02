@@ -1,2 +1,3 @@
 {:npm-deps
- {"@mentatcollective/mathlive" "^0.85.0"}}
+ {"@cortex-js/compute-engine" "^0.12.1",
+  "@mentatcollective/mathlive" "0.85.2"}}

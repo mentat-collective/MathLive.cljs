@@ -12,20 +12,23 @@
   (do (shell "npm install")
       (shell "npm run watch-clerk"))
 
-  github-pages
+  start-clerk
+  (shell "clojure -X:dev:clerk user/start!")
+
+  publish-gh-pages
   (do (shell "npm ci")
       (shell "npm run release-clerk")
       (shell "clojure -X:dev:clerk user/github-pages!")
-      (shell "rm public/index.html")
-      (shell "mv public/dev/mathlive/notebook.html" "public/index.html")
       (run 'sha))
+
+  release-gh-pages
+  (do (run 'publish-pages)
+      (shell "npm run gh-pages"))
 
   publish-local
   (do (shell "npm install")
       (shell "npm run release-clerk")
       (shell "clojure -X:dev:clerk user/publish-local!")
-      (shell "rm public/index.html")
-      (shell "mv public/dev/mathlive/notebook.html" "public/index.html")
       (run 'sha)
       (shell "npm run serve"))
 
