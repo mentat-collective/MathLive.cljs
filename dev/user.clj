@@ -13,27 +13,27 @@
   (rebind
    #'nextjournal.clerk.view/include-viewer-css
    (fn [old]
-     (fn []
+     (fn [& xs]
        (concat
         (list
          (hiccup/include-css
           "https://unpkg.com/mathlive@0.85.1/dist/mathlive-static.css")
          (hiccup/include-css
           "https://unpkg.com/mathlive@0.85.1/dist/mathlive-fonts.css"))
-        (old))))))
-
+        (apply old xs))))))
 
 (defn start! []
-  (swap! config/!resource->url merge {"/js/viewer.js" "http://localhost:8765/js/main.js"})
+  (swap! config/!resource->url merge {"/js/viewer.js" "http://localhost:8765/js/viewer.js"})
   (clerk/serve!
    {:browse? true
-    :watch-paths ["dev"]})
+    :watch-paths ["dev"]
+    :port 7777})
   (Thread/sleep 500)
   (clerk/show! "dev/mathlive/notebook.clj"))
 
 (defn github-pages! [_]
   (swap! config/!resource->url merge
-         {"/js/viewer.js" "/mathlive.cljs/js/main.js"})
+         {"/js/viewer.js" "/mathlive.cljs/js/viewer.js"})
   (clerk/build!
    {:index "dev/mathlive/notebook.clj"
     :bundle? false
@@ -43,7 +43,7 @@
 (defn publish-local!
   ([] (publish-local! nil))
   ([_]
-   (swap! config/!resource->url merge {"/js/viewer.js" "/js/main.js"})
+   (swap! config/!resource->url merge {"/js/viewer.js" "/js/viewer.js"})
    (clerk/build!
     {:index "dev/mathlive/notebook.clj"
      :bundle? false

@@ -1,6 +1,6 @@
 ## Dev Dependencies
 
-`clj`, `shadow-cljs`, `node` and `babashka`.
+`clj`, `shadow-cljs` (2.20.13), `node` and `babashka`.
 
 ## Github Pages, Docs Notebook
 

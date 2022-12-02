@@ -1,9 +1,13 @@
 (ns mathlive.clerk-ui
-  (:require #?(:cljs ["@cortex-js/compute-engine"])
-            #?(:cljs [mathlive.core])
-            #?(:clj  [nextjournal.clerk :as clerk])
-            #?(:cljs [nextjournal.clerk.sci-viewer :as sv])
-            #?(:cljs [sci.core :as sci]))
+  (:require
+   #?@(:clj  [[nextjournal.clerk :as clerk]]
+       :cljs [[mathlive.core]
+              ["@cortex-js/compute-engine"]
+              [nextjournal.clerk.sci-env]
+              [nextjournal.clerk.static-app]
+              [nextjournal.clerk.trim-image]
+              [sci.core :as sci]
+              [sci.ctx-store]]))
   #?(:cljs
      (:require-macros [mathlive.clerk-ui])))
 
@@ -13,13 +17,13 @@
 ;; library's CLJS code in the Clerk notebooks that document the library.
 
 #?(:cljs
-   (swap! sv/!sci-ctx
-          sci/merge-opts
-          {:classes    {'Math js/Math}
-           :aliases    {'ml 'mathlive.core}
-           :namespaces
-           {'mathlive.core
-            (sci/copy-ns mathlive.core (sci/create-ns 'mathlive.core))}}))
+   (sci.ctx-store/swap-ctx!
+    sci/merge-opts
+    {:classes    {'Math js/Math}
+     :aliases    {'ml 'mathlive.core}
+     :namespaces
+     {'mathlive.core
+      (sci/copy-ns mathlive.core (sci/create-ns 'mathlive.core))}}))
 
 ;; ## Example Macro
 
