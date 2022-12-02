@@ -4,7 +4,8 @@
   associated utilities."
   (:require [goog.object :as obj]
             [reagent.core :as r]
-            ["mathlive" :as mathl]
+            ["@cortex-js/compute-engine" :refer [ComputeEngine]]
+            ["@mentatcollective/mathlive/dist/mathlive.js" :as ml]
             ["react" :as react]))
 
 ;; ## Utilities
@@ -25,6 +26,10 @@
                   (fn? opts-or-f)
                   (-> (.getOptions mf)
                       (js->clj :keywordize-keys true)
+                      ;; TODO once this is resolved:
+                      ;; https://github.com/arnog/mathlive/issues/1738, we can
+                      ;; erase this.
+                      (dissoc :computeEngine)
                       (opts-or-f))
                   (map? opts-or-f) opts-or-f
                   :else (throw
@@ -39,7 +44,9 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
   mathlive-version
   "0.84.0"
   ;; TODO enable this again once we get back to mainline mathlive vs our fork.
-  #_(.-mathlive mathl/version))
+  #_(.-mathlive ml/version))
+
+
 
 (def ^{:doc "Location of the `sounds` directory in the CDN-served package
             of [mathlive](https://www.npmjs.com/package/mathlive)."}
@@ -78,13 +85,16 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
              {}
              (js-keys m)))))
 
+(def engine
+  (ComputeEngine.))
+
 (defn math-json->tex
   "Given a Clojure data structure `expr` representing
   a [MathJSON](https://cortexjs.io/math-json/) expression, returns a string of
   LaTeX representing `expr`."
   [expr]
-  (mathl/serializeMathJsonToLatex
-   (clj->js expr)))
+  (.-latex
+   (.box engine (clj->js expr))))
 
 (defn set-math-json!
   "Given
@@ -124,6 +134,7 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
     (fn [props ref]
       (let [[mf set-mf] (react/useState nil)
             {:strs [children value options defaultValue onChange
+                    onPlaceholderChange
                     soundsDirectory fontsDirectory] :as props}
             (js->clj props)]
 
@@ -156,6 +167,15 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
              (.setValue mf value)))
          #js [mf value])
 
+        (react/useEffect
+         (fn mount []
+           (when (and mf onPlaceholderChange)
+             (.addEventListener mf "placeholder-change" onPlaceholderChange))
+           (fn unmount []
+             (when (and mf onPlaceholderChange)
+               (.removeEventListener mf "placeholder-change" onPlaceholderChange))))
+         #js [mf onPlaceholderChange])
+
         ;; For whatever reason, when the component is controlled, the component
         ;; can't move its own cursor position well. So this handles the odd case
         ;; at the very beginning...
@@ -171,9 +191,19 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package. "}
 
         (r/as-element
          [:math-field
-          (assoc (dissoc props "onChange" "defaultValue" "value" "options")
+          (assoc (dissoc props "onPlaceholderChange" "onChange"
+                         "defaultValue" "value" "options")
                  "children" (or value defaultValue "")
-                 "ref" set-mf
+                 "ref" (fn [field]
+                         (when field
+                           (.setOptions field #js {:computeEngine (ComputeEngine.)}))
+                         (set-mf field))
                  "onInput" onChange
                  "sounds-directory" (or soundsDirectory cdn-sounds)
                  "fonts-directory" (or fontsDirectory cdn-fonts))]))))))
+
+
+(r/with-let [!tex (r/atom "")]
+  [:div
+   [ml/MathField {:value @!tex}]
+   [:pre @!tex]])
