@@ -203,7 +203,7 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package."}
              (.executeCommand ^js mf "moveToPreviousWord"))))
 
         ;; This passes `mf`back out to `ref` when it changes.
-        (react/useImperativeHandle ref (fn [] mf))
+        (react/useImperativeHandle ref (fn [] mf) #js [mf])
 
         (r/as-element
          [:math-field

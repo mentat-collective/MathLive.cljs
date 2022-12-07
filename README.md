@@ -47,6 +47,10 @@ notebook](https://github.com/mentat-collective/mathlive.cljs) for more examples.
 The [MathLive guides](https://cortexjs.io/mathlive/guides/interacting/) are
 great resources as well.
 
+## Why React?
+
+TODO fill this in.
+
 ## Interactive Documentation via Clerk
 
 The project's [interactive

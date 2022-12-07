@@ -32,25 +32,9 @@
   (clerk/show! "dev/mathlive/notebook.clj"))
 
 (defn github-pages! [_]
-  (swap! config/!resource->url merge
-         {"/js/viewer.js" "/mathlive.cljs/js/main.js"})
+  (swap! config/!resource->url merge {"/js/viewer.js" "/js/main.js"})
   (clerk/build!
    {:index "dev/mathlive/notebook.clj"
     :bundle? false
     :browse? false
     :out-path "public"}))
-
-(defn publish-local!
-  ([] (publish-local! nil))
-  ([_]
-   (swap! config/!resource->url merge {"/js/viewer.js" "/js/main.js"})
-   (clerk/build!
-    {:index "dev/mathlive/notebook.clj"
-     :bundle? false
-     :browse? false
-     :out-path "public"})))
-
-(comment
-  (start!)
-  (clerk/serve! {:browse? true})
-  (publish-local!))

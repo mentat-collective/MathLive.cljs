@@ -2,7 +2,7 @@
 ;;
 ;; A [ClojureScript](https://clojurescript.org/) + [Reagent](https://reagent-project.github.io/) wrapper over
 ;; the [MathLive](https://github.com/arnog/mathlive) equation editor.
-
+;;
 ;; [![Build Status](https://github.com/mentat-collective/mathlive.cljs/actions/workflows/kondo.yml/badge.svg?branch=main)](https://github.com/mentat-collective/mathlive.cljs/actions/workflows/kondo.yml)
 ;; [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/mentat-collective/mathlive.cljs/blob/main/LICENSE)
 ;; [![cljdoc badge](https://cljdoc.org/badge/org.mentat/mathlive.cljs)](https://cljdoc.org/d/org.mentat/mathlive.cljs/CURRENT)
@@ -32,8 +32,9 @@
 ;;
 ;; ```clj
 ;; ;; deps
-;; {org.mentat/mathlive.cljs {:git/sha "$GIT_SHA"}}
-;;```
+;; {org.mentat/mathlive.cljs
+;;   {:git/sha "$GIT_SHA"}}
+;; ```
 
 ;; Require `mathlive.core` in your namespace:
 

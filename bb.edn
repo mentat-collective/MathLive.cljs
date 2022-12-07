@@ -2,7 +2,7 @@
  {sha
   (let [sha (-> (shell {:out :string} "git rev-parse HEAD")
                 (:out)
-                (clojure.string/trim ))
+                (clojure.string/trim))
         file "public/index.html"]
     (-> (slurp file)
         (clojure.string/replace "$GIT_SHA" sha)
@@ -19,17 +19,15 @@
   (do (shell "npm ci")
       (shell "npm run release-clerk")
       (shell "clojure -X:dev:clerk user/github-pages!")
-      (run 'sha))
+      (run 'sha)
+      (shell "echo 'mathlive.mentat.org' > ./public/CNAME"))
 
   release-gh-pages
-  (do (run 'publish-pages)
+  (do (run 'publish-gh-pages)
       (shell "npm run gh-pages"))
 
   publish-local
-  (do (shell "npm install")
-      (shell "npm run release-clerk")
-      (shell "clojure -X:dev:clerk user/publish-local!")
-      (run 'sha)
+  (do (run 'publish-gh-pages)
       (shell "npm run serve"))
 
   release
