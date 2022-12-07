@@ -11,6 +11,8 @@
             mathlive.clerk-ui]}}
    :output-dir "public/js"
    :asset-path "/js"
+   :build-options
+   {:ns-aliases {nextjournal.devcards nextjournal.devcards-noop}}
    :compiler-options
    {:infer-externs :auto
     :optimizations :advanced}}}}

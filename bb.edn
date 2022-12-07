@@ -20,7 +20,7 @@
       (shell "npm run release-clerk")
       (shell "clojure -X:dev:clerk user/github-pages!")
       (run 'sha)
-      (shell "echo 'mathlive.mentat.org' > ./public/CNAME"))
+      (spit "./public/CNAME" "mathlive.mentat.org"))
 
   release-gh-pages
   (do (run 'publish-gh-pages)
