@@ -4,10 +4,9 @@
 
 ## Github Pages, Docs Notebook
 
-The project's [Github Pages
-site](https://mentat-collective.github.io/mathlive.cljs) hosts an interactive
-[Clerk](https://github.com/nextjournal/clerk) notebook demonstrating the
-library's use.
+The project's [Github Pages site](https://mathlive.mentat.org) hosts an
+interactive [Clerk](https://github.com/nextjournal/clerk) notebook demonstrating
+the library's use.
 
 ### Local Notebook Dev
 
@@ -41,7 +40,7 @@ To build and release to Github Pages:
 bb release-gh-pages
 ```
 
-This will ship the site to https://mentat-collective.github.io/mathlive.cljs/.
+This will ship the site to https://mathlive.mentat.org.
 
 ## Publishing to Clojars
 

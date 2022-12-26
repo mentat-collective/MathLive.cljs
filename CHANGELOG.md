@@ -2,9 +2,11 @@
 
 ## [unreleased]
 
+- https://mathlive.mentat.org
+
 ## 0.1.0
 
-- Added final `Mathfield component`
+- Added final `Mathfield` component
 
 - Published fleshed-out documentation notebook at https://mentat-collective.github.io/mathlive.cljs
 

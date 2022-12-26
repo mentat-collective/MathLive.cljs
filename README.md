@@ -23,9 +23,11 @@ Require `mathlive.core` in your namespace:
              [reagent.core :as r]))
 ```
 
-The main entrypoint to the library is the `mathlive.core/Mathfield` component.
-This component acts like a Reagent `[:textarea ,,,]` and takes similar props,
-but allows for interactive mathematical input and conversion to LaTeX.
+The main entrypoint to the library is the
+[`mathlive.core/Mathfield`](https://cljdoc.org/d/org.mentat/mathlive.cljs/0.1.0/api/mathlive.core#Mathfield)
+component. This component acts like a Reagent `[:textarea ,,,]` and takes
+similar props, but allows for interactive mathematical input and conversion to
+LaTeX.
 
 Here's an example component:
 
@@ -43,9 +45,9 @@ Here's an example component:
 ![2022-12-01 16 56 20](https://user-images.githubusercontent.com/69635/205183928-e0fb6227-c45c-4db7-982d-c8e8a3cb3ee8.gif)
 
 See the project's [interactive documentation
-notebook](https://github.com/mentat-collective/mathlive.cljs) for more examples.
-The [MathLive guides](https://cortexjs.io/mathlive/guides/interacting/) are
-great resources as well.
+notebook](https://mathlive.mentat.org) for more examples. The [MathLive
+guides](https://cortexjs.io/mathlive/guides/interacting/) are great resources as
+well.
 
 ## Why React?
 
@@ -53,16 +55,16 @@ TODO fill this in.
 
 ## Interactive Documentation via Clerk
 
-The project's [interactive
-documentation](https://mentat-collective.github.io/mathlive.cljs) was generated
-using Nextjournal's [Clerk](https://github.com/nextjournal/clerk). If you'd like
-to edit or play with the documentation, you'll need to install
+The project's [interactive documentation](https://mathlive.mentat.org) was
+generated using Nextjournal's [Clerk](https://github.com/nextjournal/clerk). If
+you'd like to edit or play with the documentation, you'll need to install
 
 - [node.js](https://nodejs.org/en/)
 - The [clojure command line tool](https://clojure.org/guides/install_clojure)
 - [Babashka](https://github.com/babashka/babashka#installation)
 
-Once this is done, run this command in one terminal window to build and serve the custom JS required by the notebook:
+Once this is done, run this command in one terminal window to build and serve
+the custom JS required by the notebook:
 
 ```
 bb dev-notebook
