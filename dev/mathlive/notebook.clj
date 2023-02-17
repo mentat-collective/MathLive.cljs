@@ -362,6 +362,83 @@ math-field:focus-within {
 ;; that point to the CDN distribution of the currently loaded version of
 ;; `mathlive`.
 
+;; ## MathLive.cljs via SCI
+;;
+;; `MathLive.cljs` is compatible with [SCI, the Small Clojure
+;; Interpreter](https://github.com/babashka/sci).
+;;
+;; To install `MathLive.cljs` into your SCI context, require
+;; the [`mathlive.sci`](https://cljdoc.org/d/org.mentat/mathlive.cljs/CURRENT/api/mathlive.sci)
+;; namespace and call `mathlive.sci/install!`:
+
+;; ```clj
+;; (ns myproject.sci-extensions
+;;   (:require [mathlive.sci]))
+
+;; (mathlive.sci/install!)
+;; ```
+;;
+;; If you want more granular control, see the [cljdoc page for
+;; `mathlive.sci`](https://cljdoc.org/d/org.mentat/mathlive.cljs/CURRENT/api/mathlive.sci)
+;; for an SCI config and distinct SCI namespace objects that you can piece
+;; together.
+;;
+;; > Note that `MathLive.cljs` does not ship with a dependency on SCI, so you'll
+;; > need to install your own version.
+;;
+;; ## MathLive.cljs via Clerk
+;;
+;; Using `MathLive.cljs` with Nextjournal's [Clerk](https://clerk.vision/) gives
+;; you the ability to write notebooks like this one with embedded MathLive
+;; constructions.
+;;
+;; Doing this requires that you generate a custom ClojureScript build for your
+;; Clerk project. The easiest way to do this for an existing project is with
+;; the [`clerk-utils` project](https://clerk-utils.mentat.org/). Follow the
+;; instructions on the [`clerk-utils` guide for custom
+;; ClojureScript](https://clerk-utils.mentat.org/#custom-clojurescript-builds).
+;;
+;; If this is your first time using Clerk, use the [`mathlive/clerk` template
+;; described below](#project-template) to generate a new project with all steps
+;; described in ["MathLive.cljs via SCI"](#mathlive.cljs-via-sci) already
+;; completed.
+
+;; ## Project Template
+;;
+;; `MathLive.cljs` includes
+;; a [`deps-new`](https://github.com/seancorfield/deps-new) template called
+;; [`mathlive/clerk`](https://github.com/mentat-collective/mathlive.cljs/tree/main/resources/mathlive/clerk)
+;; that makes it easy to configure a new Clerk project with everything described
+;; in ["MathLive.cljs via SCI"](#mathlive.cljs-via-sci) already configured.
+
+;; First, install the [`deps-new`](https://github.com/seancorfield/deps-new) tool:
+
+;; ```sh
+;; clojure -Ttools install io.github.seancorfield/deps-new '{:git/tag "v0.4.13"}' :as new
+;; ```
+
+;; To create a new Clerk project based on
+;; [`mathlive/clerk`](https://github.com/mentat-collective/mathlive.cljs/tree/main/resources/mathlive/clerk)
+;; in a folder called `my-notebook-project`, run the following command:
+
+^{::clerk/visibility {:code :hide}}
+(clerk/md
+ (format "
+```sh
+clojure -Sdeps '{:deps {io.github.mentat-collective/mathlive.cljs {:git/sha \"%s\"}}}' \\
+-Tnew create \\
+:template mathlive/clerk \\
+:name myusername/my-notebook-project
+```" (docs/git-sha)))
+
+;; The `README.md` file in the generated project contains information on how to
+;; develop within the new project.
+
+;; If you have an existing Clerk notebook project and are considering adding
+;; `MathLive.cljs`, you might consider
+;; using [`mathlive/clerk`](https://github.com/mentat-collective/mafs.cljs/tree/main/resources/mafs/clerk)
+;; to get some ideas on how to structure your own project.
+
 ;; ## MathJSON
 ;;
 ;; The default value format for a `Mathfield` is `"latex"`, but the component
@@ -415,7 +492,8 @@ math-field:focus-within {
               :text     (.getValue mf)
               :mathjson (ml/->math-json mf))))}])
 
-;; The following block renders any value entered above (please edit it!) in 3 different forms:
+;; The following block renders any value entered above (please edit it!) in 3
+;; different forms:
 ;;
 ;; - A text representation of LaTeX
 ;; - Rendered TeX, via [Clerk's](https://github.com/nextjournal/clerk) [KaTeX](https://katex.org/) plugin
