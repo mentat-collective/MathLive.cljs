@@ -1,4 +1,4 @@
-# mathlive.cljs
+# MathLive.cljs
 
 A [ClojureScript][CLJS] + [Reagent][REAGENT] wrapper over the [MathLive][MATHLIVE] equation editor.
 
@@ -24,7 +24,7 @@ Require `mathlive.core` in your namespace:
 ```
 
 The main entrypoint to the library is the
-[`mathlive.core/Mathfield`](https://cljdoc.org/d/org.mentat/mathlive.cljs/0.1.0/api/mathlive.core#Mathfield)
+[`mathlive.core/Mathfield`](https://cljdoc.org/d/org.mentat/mathlive.cljs/CURRENT/api/mathlive.core#Mathfield)
 component. This component acts like a Reagent `[:textarea ,,,]` and takes
 similar props, but allows for interactive mathematical input and conversion to
 LaTeX.

@@ -1,3 +1,18 @@
+^#:nextjournal.clerk
+{:toc true
+ :no-cache true
+ :visibility :hide-ns}
+(ns mathlive.notebook
+  (:require [mentat.clerk-utils.docs :as docs]
+            [mentat.clerk-utils.show :refer [show-sci]]
+            [nextjournal.clerk :as clerk]))
+
+^{::clerk/visibility {:code :hide :result :hide}}
+(clerk/eval-cljs
+ ;; These aliases only apply inside this namespace.
+ '(require '[mathlive.core :as ml])
+ '(require '[reagent.core :as reagent]))
+
 ;; # MathLive.cljs
 ;;
 ;; A [ClojureScript](https://clojurescript.org/) + [Reagent](https://reagent-project.github.io/) wrapper over
@@ -8,8 +23,7 @@
 ;; [![cljdoc badge](https://cljdoc.org/badge/org.mentat/mathlive.cljs)](https://cljdoc.org/d/org.mentat/mathlive.cljs/CURRENT)
 ;; [![Clojars Project](https://img.shields.io/clojars/v/org.mentat/mathlive.cljs.svg)](https://clojars.org/org.mentat/mathlive.cljs)
 ;;
-;; > The interactive documentation on this page was generated from [this source
-;; > file](https://github.com/mentat-collective/mathlive.cljs/blob/$GIT_SHA/dev/mathlive/notebook.clj)
+;; > The interactive documentation on this page was generated
 ;; > using [Clerk](https://github.com/nextjournal/clerk). Follow
 ;; > the [instructions in the
 ;; > README](https://github.com/mentat-collective/mathlive.cljs/tree/main#interactive-documentation-via-clerk)
@@ -29,12 +43,10 @@
 ;;    Project](https://img.shields.io/clojars/v/org.mentat/mathlive.cljs.svg)](https://clojars.org/org.mentat/mathlive.cljs)
 ;;
 ;; Or grab the most recent code using a Git dependency:
-;;
-;; ```clj
-;; ;; deps
-;; {io.github.mentat-collective/mathlive.cljs
-;;   {:git/sha "$GIT_SHA"}}
-;; ```
+
+^{::clerk/visibility {:code :hide}}
+(docs/git-dependency
+ "mentat-collective/mathlive.cljs")
 
 ;; Require `mathlive.core` in your namespace:
 
@@ -44,20 +56,26 @@
 ;;             [reagent.core :as reagent]))
 ;; ```
 
+;; You'll also need to include the stylesheets that ship with `MathLive`. If
+;; you're using Clerk
+;; and [`clerk-utils`](https://github.com/mentat-collective/clerk-utils), add
+;; this form to `dev/user.clj`:
+
+;; ```clj
+;; (mentat.clerk-utils.css/set-css!
+;;  "https://unpkg.com/mathlive/dist/mathlive-static.css"
+;;  "https://unpkg.com/mathlive/dist/mathlive-fonts.css")
+;; ```
+;;
+;; Otherwise find some way to load these CSS files in your project's header.
+
 ;; The main entrypoint to the library is the `mathlive.core/Mathfield` component.
 ;; This component acts like a Reagent `[:textarea ,,,]` and takes similar props,
 ;; but allows for interactive mathematical input and conversion to LaTeX.
 
-^#:nextjournal.clerk
-{:toc true
- :no-cache true
- :visibility :hide-ns}
-(ns mathlive.notebook
-  (:require [mathlive.clerk-ui :refer [cljs]]))
-
-^{:nextjournal.clerk/visibility
+^{::clerk/visibility
   {:code :hide}}
-(cljs
+(show-sci
  ;; These are some styles.
  [:style "
 math-field {
@@ -76,7 +94,7 @@ math-field:focus-within {
 ;; The simplest way to create a Mathfield is to create a component with no
 ;; properties:
 
-(cljs
+(show-sci
  [ml/Mathfield])
 
 ;; This will render an "uncontrolled" equation editor. Play around with
@@ -91,7 +109,7 @@ math-field:focus-within {
 ;; Just like a `:textarea`, you can pre-populate a `Mathfield` instance by
 ;; supplying it with a LaTeX string through the `:default-value` property:
 
-(cljs
+(show-sci
  [ml/Mathfield
   {:default-value "1+\\cos(x)^2"}])
 
@@ -104,7 +122,7 @@ math-field:focus-within {
 ;; atom. The contents of the atom feed into the `Mathfield` and also into an
 ;; adjacent block of code.
 
-(cljs
+(show-sci
  (reagent/with-let
    [!tex      (reagent/atom "1+\\cos(x)^2")
     on-change #(reset! !tex (.getValue (.-target %)))]
@@ -123,7 +141,7 @@ math-field:focus-within {
 ;; Try changing the `:textarea` or the `Mathfield`. Reagent will keep the two in
 ;; sync.
 
-(cljs
+(show-sci
  (reagent/with-let
    [!tex (reagent/atom
           "x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}")
@@ -162,7 +180,7 @@ math-field:focus-within {
 ;; the [`ml/->placeholders`](https://cljdoc.org/d/org.mentat/mathlive.cljs/CURRENT/api/mathlive.core#-%3Eplaceholders)
 ;; helper to extract all placeholders and convert them to Clojure.
 
-(cljs
+(show-sci
  (reagent/with-let
    [m         (reagent/atom {:x-body []
                              :y-body []})
@@ -217,7 +235,7 @@ math-field:focus-within {
 ;; For example, all three of the following `Mathfield`s are configured with
 ;; their `virtualKeyboardMode` set to true:
 
-(cljs
+(show-sci
  [:<>
   ;; Via options map:
   [ml/Mathfield
@@ -243,7 +261,7 @@ math-field:focus-within {
 ;; will receive `MathfieldElement` before any modifications from your supplied
 ;; options.
 
-(cljs
+(show-sci
  [ml/Mathfield
   {:ref (fn [mf]
           (when mf
@@ -256,7 +274,7 @@ math-field:focus-within {
 
 ;; This `Mathfield` shows a red error box over the `\smallfrac` command:
 
-(cljs
+(show-sci
  [ml/Mathfield
   {:default-value
    "\\scriptCapitalE=\\smallfrac{5}{7}+\\frac{5}{7}"}])
@@ -265,7 +283,7 @@ math-field:focus-within {
 ;; command>` / `<replacement template>` into the map stored under `:macros`, and
 ;; now the `\smallfrac` renders properly!
 
-(cljs
+(show-sci
  [ml/Mathfield
   {:default-value
    "\\scriptCapitalE=\\smallfrac{5}{7}+\\frac{5}{7}"
@@ -292,7 +310,7 @@ math-field:focus-within {
 ;;
 ;; Try typing `cake` into the `Mathfield` below:
 
-(cljs
+(show-sci
  [ml/Mathfield
   {:options
    (fn [opts]
@@ -374,7 +392,7 @@ math-field:focus-within {
 ;;
 ;; First, create a `reagent/atom` to store the values:
 
-(cljs
+(show-sci
  (defonce !state
    (reagent/atom {:text "1+x"})))
 
@@ -387,7 +405,7 @@ math-field:focus-within {
 ;; > here](https://cortexjs.io/docs/mathlive/#(OutputFormat%3Atype)). `(ml/->math-json
 ;; > mf)` returns the MathJSON as Clojure data vs JS.
 
-(cljs
+(show-sci
  [ml/Mathfield
   {:value (:text @!state)
    :on-change
@@ -403,13 +421,15 @@ math-field:focus-within {
 ;; - Rendered TeX, via [Clerk's](https://github.com/nextjournal/clerk) [KaTeX](https://katex.org/) plugin
 ;; - MathJSON parsed into Clojure
 
-(cljs
+(show-sci
  [:<>
   [:pre (:text @!state)]
-  [v/inspect (v/tex
-              (:text @!state))]
-  [v/inspect (v/code
-              (:mathjson @!state))]])
+  [nextjournal.clerk.viewer/inspect
+   (nextjournal.clerk.viewer/tex
+    (:text @!state))]
+  [nextjournal.clerk.viewer/inspect
+   (nextjournal.clerk.viewer/code
+    (:mathjson @!state))]])
 
 ;; These values will live-update as you change the value of the `Mathfield`
 ;; above.
@@ -420,7 +440,7 @@ math-field:focus-within {
 ;; the value of a `Mathfield` directly using
 ;; the [`:ref`](#Mathfield%20via%20:ref) key:
 
-(cljs
+(show-sci
  [ml/Mathfield
   {:ref (fn [mf]
           (when mf
@@ -435,8 +455,8 @@ math-field:focus-within {
 ;; You can also generate LaTeX directly from MathJSON without setting a
 ;; `Mathfield`'s value:
 
-(cljs
- (v/tex
+(show-sci
+ (nextjournal.clerk.viewer/tex
   (ml/math-json->tex
    ["Add" "x" ["Subtract" "y" "z"]])))
 
