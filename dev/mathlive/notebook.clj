@@ -436,7 +436,7 @@ clojure -Sdeps '{:deps {io.github.mentat-collective/mathlive.cljs {:git/sha \"%s
 
 ;; If you have an existing Clerk notebook project and are considering adding
 ;; `MathLive.cljs`, you might consider
-;; using [`mathlive/clerk`](https://github.com/mentat-collective/mafs.cljs/tree/main/resources/mafs/clerk)
+;; using [`mathlive/clerk`](https://github.com/mentat-collective/mathlive.cljs/tree/main/resources/mathlive/clerk)
 ;; to get some ideas on how to structure your own project.
 
 ;; ## MathJSON
