@@ -1,5 +1,6 @@
 (ns mathlive.sci-extensions
-  (:require [mathlive.sci]))
+  (:require ["@cortex-js/compute-engine"]
+            [mathlive.sci]))
 
 ;; ## SCI Customization
 

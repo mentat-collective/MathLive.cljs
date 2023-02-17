@@ -152,7 +152,8 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package."}
               (str "Warning: don't set both `:value` and `:default-value` props."
                    " `Mathfield`s must be either controlled or uncontrolled"
                    " (specify either the `:value` prop, or the `:default-value` prop, but not both)."
-                   " Decide between using a controlled or uncontrolled `Mathfield` and remove one of these props."))))
+                   " Decide between using a controlled or uncontrolled `Mathfield` and remove one of these props.")))
+           js/undefined)
          #js [])
 
         ;; NOTE We have to use this trick to prevent effects that depend on
@@ -168,15 +169,17 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package."}
            ;; Only run when the VALUE of `options` changes, not the reference.
            (fn mount []
              (when (and mf options)
-               (update-options! mf options)))
+               (update-options! mf options))
+             js/undefined)
            #js [(.-current opt-ref) mf]))
 
         ;; This effect updates the value of the `Mathfield` if it's changed from
         ;; somewhere else.
         (react/useEffect
-         (fn []
+         (fn mount []
            (when (and mf value (not= (.getValue mf) value))
-             (.setValue mf value)))
+             (.setValue mf value))
+           js/undefined)
          #js [mf value])
 
         ;; React doesn't pick up `:on-placeholder-change` so we intercept it and
@@ -196,11 +199,12 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package."}
         ;; Chudzicki](https://github.com/ChristopherChudzicki/math3d-next/blob/838369956a0bd1f126f8c04ef900eaf53741011c/client/src/util/components/MathLive/MathField.tsx#L52-L69)
         ;; for figuring this one out.
         (react/useEffect
-         (fn []
+         (fn mount []
            (when (and mf
                       (.endsWith (.getValue mf) "?")
                       (= 2 (.-position mf)))
-             (.executeCommand ^js mf "moveToPreviousWord"))))
+             (.executeCommand ^js mf "moveToPreviousWord"))
+           js/undefined))
 
         ;; This passes `mf`back out to `ref` when it changes.
         (react/useImperativeHandle ref (fn [] mf) #js [mf])
