@@ -1,5 +1,6 @@
 (ns {{top/ns}}.sci-extensions
-    (:require [{{top/ns}}.custom]
+    (:require ["@cortex-js/compute-engine"]
+              [{{top/ns}}.custom]
               [mathlive.sci]
               [sci.ctx-store]
               [sci.core :as sci]))
@@ -18,6 +19,11 @@
 
 ;; See [`MathLive.cljs` via SCI](https://mathlive.mentat.org/#mathlive.cljs-via-sci) for
 ;; more details.
+
+;; > Note that the `@cortex-js/compute-engine` library required above is
+;; > required for any [MathJSON feature](https://mathlive.mentat.org/#mathjson)
+;; > to work. If you're not taking advantage of MathJSON, remove this line to
+;; > make your build smaller.
 
 ;; ## SCI Environment Extension
 

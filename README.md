@@ -80,8 +80,8 @@ Once this is done, run this command:
 bb clerk-watch
 ```
 
-This should open a browser window to `http://localhost:7777` with the contents
-of the documentation notebook. Any edits you make to `dev/mathlive/notebook.clj`
+This will open a browser window to `http://localhost:7777` with the contents of
+the documentation notebook. Any edits you make to `dev/mathlive/notebook.clj`
 will be picked up and displayed in the browser on save.
 
 ## Thanks and Support
