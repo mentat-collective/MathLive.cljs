@@ -15,7 +15,7 @@ clojure -Ttools install io.github.seancorfield/deps-new '{:git/tag "v0.5.0"}' :a
 Then create a project using the `mathlive/clerk` template:
 
 ```
-clojure -Sdeps '{:deps {io.github.mentat-collective/mathlive.cljs {:git/sha "5b613fe5b2d4a9ad3294de51543d146a43a19ebc"}}}' \
+clojure -Sdeps '{:deps {io.github.mentat-collective/mathlive.cljs {:git/tag "v0.2.0" :git/sha "346536f"}}}' \
 -Tnew create \
 :template mathlive/clerk \
 :name myusername/my-mathlive-project
