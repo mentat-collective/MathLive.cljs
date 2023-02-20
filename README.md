@@ -1,19 +1,27 @@
 # MathLive.cljs
 
-A [ClojureScript][CLJS] + [Reagent][REAGENT] wrapper over the [MathLive][MATHLIVE] equation editor.
+A [ClojureScript][cljs-url] + [Reagent][reagent-url] wrapper over the [MathLive][mathlive-url] equation editor.
 
-[![Build Status](https://github.com/mentat-collective/mathlive.cljs/actions/workflows/kondo.yml/badge.svg?branch=main)](https://github.com/mentat-collective/mathlive.cljs/actions/workflows/kondo.yml)
-[![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/mentat-collective/mathlive.cljs/blob/main/LICENSE)
-[![cljdoc badge](https://cljdoc.org/badge/org.mentat/mathlive.cljs)](https://cljdoc.org/d/org.mentat/mathlive.cljs/CURRENT)
-[![Clojars Project](https://img.shields.io/clojars/v/org.mentat/mathlive.cljs.svg)](https://clojars.org/org.mentat/mathlive.cljs)
+[![Build Status][build-status]][build-status-url]
+[![License][license]][license-url]
+[![cljdoc badge][cljdoc]][cljdoc-url]
+[![Clojars Project][clojars]][clojars-url]
+[![Discord Shield][discord]][discord-url]
 
 ## Quickstart
 
-Install `mathlive.cljs` into your Clojurescript project using the instructions
+Install `MathLive.cljs` into your Clojurescript project using the instructions
 at its Clojars page:
 
-[![Clojars
-Project](https://img.shields.io/clojars/v/org.mentat/mathlive.cljs.svg)](https://clojars.org/org.mentat/mathlive.cljs)
+[![Clojars Project][clojars]][clojars-url]
+
+Or grab the most recent code using a Git dependency:
+
+```clj
+;; deps
+{io.github.mentat-collective/mathlive.cljs
+  {:git/sha "$GIT_SHA"}}
+```
 
 Require `mathlive.core` in your namespace:
 
@@ -49,9 +57,12 @@ notebook](https://mathlive.mentat.org) for more examples. The [MathLive
 guides](https://cortexjs.io/mathlive/guides/interacting/) are great resources as
 well.
 
-## Why React?
+## Clerk Support
 
-TODO fill this in.
+If you want to use `MathLive.cljs` with [Clerk][clerk-url], check out the
+[`mathlive/clerk` template][mathlive-clerk-template-url]. This
+[`deps-new`][deps-new-url] template will generate a Clerk project for you, fully
+configured to use `MathLive.cljs` in your Clerk notebooks.
 
 ## Interactive Documentation via Clerk
 
@@ -63,17 +74,10 @@ you'd like to edit or play with the documentation, you'll need to install
 - The [clojure command line tool](https://clojure.org/guides/install_clojure)
 - [Babashka](https://github.com/babashka/babashka#installation)
 
-Once this is done, run this command in one terminal window to build and serve
-the custom JS required by the notebook:
+Once this is done, run this command:
 
-```
-bb dev-notebook
-```
-
-In another terminal window, run
-
-```
-bb start-clerk
+```sh
+bb clerk-watch
 ```
 
 This should open a browser window to `http://localhost:7777` with the contents
@@ -97,6 +101,20 @@ Copyright © 2022 Sam Ritchie.
 
 Distributed under the [MIT License](LICENSE). See [LICENSE](LICENSE).
 
-[CLJS]: https://clojurescript.org/
-[MATHLIVE]: https://github.com/arnog/mathlive
-[REAGENT]: https://reagent-project.github.io/
+[build-status-url]: https://github.com/mentat-collective/mathlive.cljs/actions/workflows/kondo.yml
+[build-status]: https://github.com/mentat-collective/mathlive.cljs/actions/workflows/kondo.yml/badge.svg?branch=main
+[cljdoc-url]: https://cljdoc.org/d/org.mentat/mathlive.cljs/CURRENT
+[cljdoc]: https://cljdoc.org/badge/org.mentat/mathlive.cljs
+[clojars-url]: https://clojars.org/org.mentat/mathlive.cljs
+[clojars]: https://img.shields.io/clojars/v/org.mentat/mathlive.cljs.svg
+[discord-url]: https://discord.gg/hsRBqGEeQ4
+[discord]: https://img.shields.io/discord/731131562002743336?style=flat&colorA=000000&colorB=000000&label=&logo=discord
+[license-url]: LICENSE
+[license]: https://img.shields.io/badge/license-MIT-brightgreen.svg
+[github-url]: https://github.com/mentat-collective/mathlive.cljs
+[reagent-url]: https://reagent-project.github.io/
+[mathlive-url]: https://mathlive.dev
+[deps-new-url]: https://github.com/seancorfield/deps-new
+[mathlive-clerk-template-url]: https://github.com/mentat-collective/MathLive.cljs/tree/main/resources/mathlive/clerk
+[clerk-url]: https://clerk.vision
+[cljs-url]: https://clojurescript.org/
