@@ -6,8 +6,8 @@
     <groupId>org.mentat</groupId>
     <artifactId>mathlive.cljs</artifactId>
     <name>mathlive.cljs</name>
-    <description>Clojurescript / Reagent interface for MathLive.</description>
-    <url>http://github.com/mentat-collective/mathlive.cljs</url>
+    <description>A ClojureScript + Reagent wrapper over the MathLive equation editor.</description>
+    <url>https://mathlive.mentat.org</url>
     <licenses>
         <license>
             <name>MIT</name>
