@@ -77,7 +77,7 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package."}
                (let [field (aget m k)
                      v (if (= type "math-json")
                          (->math-json field)
-                         (.getValue field type))]
+                         (.getPromptValue ^js mf type))]
                  (assoc acc (keyword k) v)))
              {}
              (js-keys m)))))

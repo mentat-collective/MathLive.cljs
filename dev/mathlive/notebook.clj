@@ -1,17 +1,17 @@
-^#:nextjournal.clerk
-{:toc true
- :no-cache true
- :visibility :hide-ns}
+^{:nextjournal.clerk/visibility {:code :hide}}
 (ns mathlive.notebook
+  #:nextjournal.clerk{:toc true :no-cache true}
   (:require [mentat.clerk-utils.docs :as docs]
             [mentat.clerk-utils.show :refer [show-sci]]
             [nextjournal.clerk :as clerk]))
 
+{::clerk/width :wide}
+
 ^{::clerk/visibility {:code :hide :result :hide}}
 (clerk/eval-cljs
  ;; These aliases only apply inside this namespace.
- '(require '[mathlive.core :as ml])
- '(require '[reagent.core :as reagent]))
+ '(do (require '[mathlive.core :as ml])
+      (require '[reagent.core :as reagent])))
 
 ;; # MathLive.cljs
 ;;
@@ -79,6 +79,7 @@
  ;; These are some styles.
  [:style "
 math-field {
+  width: 100%;
   font-size: 24px;
   border-radius: 4px;
   border: 1px solid;
@@ -324,10 +325,12 @@ math-field:focus-within {
 ;;
 ;; > The appearance and behavior of the mathfield is highly customizable.
 ;;
-;; The `Mathfield` instances in this notebook have all been customized with the following styles:
+;; The `Mathfield` instances in this notebook have all been customized with the
+;; following styles:
 ;;
 ;;```css
 ;; math-field {
+;;   width: 100%;
 ;;   font-size: 24px;
 ;;   border-radius: 4px;
 ;;   border: 1px solid;

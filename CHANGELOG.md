@@ -2,6 +2,15 @@
 
 ## [unreleased]
 
+## [0.2.1]
+
+- #15:
+
+  - removes the `goog.object` to make the library compatible with SCI
+    evaluation, needed by Portal.
+
+  - adds various build upgrades, (Clerk, Kondo etc)
+
 ## [0.2.0]
 
 The interactive docs page is now published to https://mathlive.mentat.org.
