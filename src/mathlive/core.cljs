@@ -2,8 +2,7 @@
   "Reagent component wrapping the `math-field` web component from
   the [Mathlive](https://cortexjs.io/docs/mathlive) project, along with
   associated utilities."
-  (:require [goog.object :as obj]
-            [reagent.core :as r]
+  (:require [reagent.core :as r]
             ["mathlive" :as ml]
             ["react" :as react]))
 
@@ -75,10 +74,10 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package."}
         :or {type "latex"}}]
    (let [m ^js (.-placeholders mf)]
      (reduce (fn [acc k]
-               (let [field (obj/get m k)
+               (let [field (aget m k)
                      v (if (= type "math-json")
                          (->math-json field)
-                         (.getValue field type))]
+                         (.getPromptValue ^js mf type))]
                  (assoc acc (keyword k) v)))
              {}
              (js-keys m)))))
@@ -123,12 +122,12 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package."}
 ;;  "1+x"]
 ;; ```
 
-(def ^{:doc "Reagent component around
-  the [MathLive](https://github.com/arnog/mathlive) equation editor.
+(def Mathfield
+  "Reagent component around the [MathLive](https://github.com/arnog/mathlive)
+  equation editor.
 
   NOTE: Following React's convention, `:on-change` binds a listener to to the
- `input` event. See https://reactjs.org/docs/dom-elements.html#onchange"}
-  Mathfield
+  `input` event. See https://reactjs.org/docs/dom-elements.html#onchange"
   (r/adapt-react-class
    (react/forwardRef
     (fn [props ref]
