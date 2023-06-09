@@ -2,8 +2,7 @@
   "Reagent component wrapping the `math-field` web component from
   the [Mathlive](https://cortexjs.io/docs/mathlive) project, along with
   associated utilities."
-  (:require [goog.object :as obj]
-            [reagent.core :as r]
+  (:require [reagent.core :as r]
             ["mathlive" :as ml]
             ["react" :as react]))
 
@@ -75,7 +74,7 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package."}
         :or {type "latex"}}]
    (let [m ^js (.-placeholders mf)]
      (reduce (fn [acc k]
-               (let [field (obj/get m k)
+               (let [field (aget m k)
                      v (if (= type "math-json")
                          (->math-json field)
                          (.getValue field type))]
