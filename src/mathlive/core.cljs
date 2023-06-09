@@ -122,12 +122,12 @@ the [mathlive](https://www.npmjs.com/package/mathlive) npm package."}
 ;;  "1+x"]
 ;; ```
 
-(def ^{:doc "Reagent component around
-  the [MathLive](https://github.com/arnog/mathlive) equation editor.
+(def Mathfield
+  "Reagent component around the [MathLive](https://github.com/arnog/mathlive)
+  equation editor.
 
   NOTE: Following React's convention, `:on-change` binds a listener to to the
- `input` event. See https://reactjs.org/docs/dom-elements.html#onchange"}
-  Mathfield
+  `input` event. See https://reactjs.org/docs/dom-elements.html#onchange"
   (r/adapt-react-class
    (react/forwardRef
     (fn [props ref]
